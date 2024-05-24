@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import List from './components/list/index.vue';
+
 </script>
 
 <template>
