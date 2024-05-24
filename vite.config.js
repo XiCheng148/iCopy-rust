@@ -22,4 +22,9 @@ export default defineConfig({
       autoImport: true,
     }),
   ],
+  resolve: {
+    alias: {
+      '@': './src',
+    },
+  },
 });

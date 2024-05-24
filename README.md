@@ -1,66 +1,29 @@
-# Vite Tauri Desktop Application Template
+# Development
 
-This is a starter template for those who want to make a desktop application with web technologies. This template uses the below stack.
+开发应用程序有两种方法。
 
-### Vite.js
-Vite.js is a new modern bundler for javascript which is blazing fast and includes many sensible defaults.
+## In Browser
+- `pnpm run serve`
+  - 启动 vite，你可以在浏览器中测试和开发你的应用程序 http://localhost:8080.
 
-### Tauri
-Tauri is a new modern technology to turn your web apps into a desktop app for multiple platforms (Windows, MacOS, Linux, android and ios soon). Tauri apps have very small file size and tiny memory consumption.
+## In Tauri Window
 
-### Vue 3
-Vue.js is an incremental frontend framework which is an absolute joy to work with. It has seen very impressive improvements in version 3 including Composition Api, script setup, dynamic css binding and ... .
+启动两个终端
 
-### Vuetify 3
-Vuetify is arguably the best component library for Vue 3 and is currently in alpha stage but will soon be ready for production. Lots of premade components will make your job as application developer easier and more fun.
+1- `pnpm run serve:tauri`
 
-## Installation
-- Ready your workspace according to Tauri. [Tauri Getting Started](https://tauri.app/v1/guides/getting-started/prerequisites/)
+这将启动 Vite 
 
-  - Note: You only need to install global things such as Rust and other OS level packages. Any thing related to application itself is already installed and ready for you.
+2- `pnpm run serve:native`
 
-- Clone repository
-  - `git clone https://github.com/yooneskh/vite-tauri-template app-name`
+这将启动 Tauri 窗口，您将在本地窗口中看到您的应用程序。
 
-- `yarn` (or `npm install` but yarn is preferred)
+**Note:** 浏览器的开发和 Tauri 窗口的开发主要有两点不同。
 
-- Modify these files according to your app.
+- 一个是谁执行你的 http 调用，因为在浏览器中，你受到 CORS 规则的约束，但是在 Tauri 模式下测试时，Tauri 的本地模块正在执行 http 调用，所以 CORS 不会成为问题。
 
-  - ./index.html
-  - ./package.json
-  - ./public/favicon.svg
-  - ./src-tauri/icons/*
-  - ./src-tauri/tauri.conf.json
+- 其次是渲染器引擎。在浏览器中，它通常是最新的现代引擎，但在 Tauri 中，它将是操作系统的网络引擎，这很好，但可能不如浏览器。
 
-## Development
+# Building
 
-There are two ways you can develo your app.
-
-### In Browser
-- `yarn serve`
-  - launches vite and you can test and develop your app in the browser at http://localhost:8080.
-
-### In Tauri Window
-
-Launch two terminals and in
-
-1- `yarn serve:tauri`
-
-This launches Vite and configures [Unified Network](https://github.com/yooneskh/unified-network) (which is mine) to use Tauri for api calls (to get around CORS problems).
-
-2- `yarn serve:native`
-
-This launches Tauri window and you would see your app in the native window.
-
-**Note:** There are mainly 2 differences between development in browser and in Tauri window.
-
-- One is who executes your http calls, because when in browser, you are subject to CORS rules, but when testing in Tauri mode, Tauri's native module is executing the http calls so CORS will not be a problem.
-
-- Second is the renderer engine. In browsers, it is usually the latest modern engine, but in Tauri, it will be the OS's web engine, which is good, but maybe not as good as the browsers.
-
-## Building
-
-`yarn build` builds web application and packages them with Tauri in "./src-tauri/target/releases".
-
-## License
-Do whatever you want with it!
+`pnpm run build` 在 `./src-tauri/target/releases` 中构建应用程序并用 Tauri 对其进行打包.

@@ -1,20 +1,18 @@
 <script setup lang="ts">
-/* template specific */
-
-// import Counter from './modules/counter/mod.vue';
-// import Fetcher from './modules/fetcher/mod.vue';
-import Setting from './modules/setting/index.vue';
+import List from './components/list/index.vue';
 </script>
 
 <template>
-  <v-app>
-    <v-main class="bg-grey-lighten-4">
-      <v-container class="mx-auto" style="max-width: 768px">
-        <Setting />
-        <!-- <counter /> -->
-
-        <!-- <fetcher class="mt-3" /> -->
-      </v-container>
-    </v-main>
-  </v-app>
+  <div class="mt-8 w-100vw mx-auto px-8 scroll-container">
+    <v-text-field clearable>
+      <template v-slot:prepend>
+        <img
+          class="w-40px h-40px ml-20px"
+          src="https://weremit-static.tenpay.com/upload-static/tgb/x844gH2dTxV3lyJ1Omj5zE-vector.svg"
+          alt=""
+        />
+      </template>
+    </v-text-field>
+    <List class="w-full" />
+  </div>
 </template>
