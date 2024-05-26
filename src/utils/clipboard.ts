@@ -1,4 +1,4 @@
-import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import {
   onClipboardUpdate,
   onImageUpdate,
@@ -15,7 +15,11 @@ import {
   hasFiles,
 } from 'tauri-plugin-clipboard-api';
 import { UnlistenFn } from '@tauri-apps/api/event';
+import { useDexie } from './db';
+
 export function useClipboard() {
+  const { add } = useDexie();
+
   let monitorRunning = ref(false);
   let unlistenTextUpdate: UnlistenFn;
   let unlistenImageUpdate: UnlistenFn;
@@ -46,25 +50,37 @@ export function useClipboard() {
     },
   });
 
-  const hasNew = computed(() => {
-    const res =  Object.keys(has.value).filter(key => has.value[key]);
-    return res
+  const hasNew = ref(false);
+
+  listenToMonitorStatusUpdate(running => {
+    monitorRunning.value = running;
   });
+
   onMounted(async () => {
-    unlistenTextUpdate = await onTextUpdate(newText => {
+    unlistenTextUpdate = await onTextUpdate(async newText => {
+      console.log('newText: ', newText);
+      if (has.value.text.content === newText) return;
+      if (!/\S/.test(newText)) return;
+      if (hasNew.value) return;
+      hasNew.value = true;
+      await add(newText);
       has.value.text.content = newText;
     });
-    unlistenHtmlUpdate = await onHTMLUpdate(newHtml => {
-      has.value.html.content = newHtml;
+    // unlistenHtmlUpdate = await onHTMLUpdate(async newHtml => {
+    //   if (!hasNew.value) hasNew.value = true;
+    //   await add(newHtml);
+    // });
+    unlistenImageUpdate = await onImageUpdate(async b64Str => {
+      if (!hasNew.value) hasNew.value = true;
+      await add(b64Str, 'img');
     });
-    unlistenImageUpdate = await onImageUpdate(b64Str => {
-      has.value.img.content = b64Str;
+    unlistenFiles = await onFilesUpdate(async newFiles => {
+      if (!hasNew.value) hasNew.value = true;
+      await add(JSON.stringify(newFiles));
     });
-    unlistenFiles = await onFilesUpdate(newFiles => {
-      has.value.flies.content = newFiles;
-    });
-    unlistenRTF = await onRTFUpdate(newRTF => {
-      has.value.rtf.content = newRTF;
+    unlistenRTF = await onRTFUpdate(async newRTF => {
+      if (!hasNew.value) hasNew.value = true;
+      await add(newRTF);
     });
     unlistenClipboard = await startListening();
 
@@ -77,10 +93,6 @@ export function useClipboard() {
     });
   });
 
-  listenToMonitorStatusUpdate(running => {
-    monitorRunning.value = running;
-  });
-
   onUnmounted(() => {
     if (unlistenTextUpdate) unlistenTextUpdate();
     if (unlistenImageUpdate) unlistenImageUpdate();
@@ -90,6 +102,6 @@ export function useClipboard() {
   });
   return {
     monitorRunning,
-    hasNew
+    hasNew,
   };
 }

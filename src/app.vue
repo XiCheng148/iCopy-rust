@@ -4,8 +4,8 @@ import List from './components/list/index.vue';
 </script>
 
 <template>
-  <div class="mt-8 w-100vw mx-auto px-8 scroll-container">
-    <v-text-field clearable>
+  <div class="m-4 w-100vw mx-auto px-4 pr-8">
+    <!-- <v-text-field clearable>
       <template v-slot:prepend>
         <img
           class="w-40px h-40px ml-20px"
@@ -13,7 +13,7 @@ import List from './components/list/index.vue';
           alt=""
         />
       </template>
-    </v-text-field>
+    </v-text-field> -->
     <List class="w-full" />
   </div>
 </template>

@@ -5,25 +5,28 @@ import Dexie from 'dexie';
 // 创建数据库
 const db = new Dexie('MyDatabase');
 db.version(1).stores({
-  list: '++id, content, time',
+  list: '++id, content, time, type',
 });
 
 export function useDexie() {
   const list = ref([]);
 
-  const add = async (content: string) => {
-    await db.list.add({ content, time: new Date() });
+  const add = async (
+    content: string | [],
+    type: 'html' | 'img' | 'text' | 'rtf' = 'text'
+  ) => {
+    await db.list.add({ content, time: new Date(), type });
     await fetchList();
   };
 
   const fetchList = async () => {
-    list.value = await db.list.toArray();
-    console.log('list.value: ', list.value);
+    list.value = await db.list.orderBy('time').reverse().toArray();
+    console.log('fetchList: ', JSON.parse(JSON.stringify(list.value)));
   };
 
-  onMounted(() => {
-    fetchList();
-  });
+  // onMounted(() => {
+  //   fetchList();
+  // });
 
   return {
     list,
