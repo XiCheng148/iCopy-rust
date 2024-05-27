@@ -58,7 +58,7 @@ export function useClipboard() {
 
   onMounted(async () => {
     unlistenTextUpdate = await onTextUpdate(async newText => {
-      console.log('newText: ', newText);
+      // console.log('newText: ', newText);
       if (has.value.text.content === newText) return;
       if (!/\S/.test(newText)) return;
       if (hasNew.value) return;
