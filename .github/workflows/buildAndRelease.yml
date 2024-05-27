@@ -1,116 +1,44 @@
 name: Build and Release on Tag
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
 
 jobs:
-  build-and-release:
-    runs-on: ubuntu-latest
+  publish-tauri:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [macos-latest, windows-latest]
+
+    runs-on: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+      - name: setup node
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
-
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Setup Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
-          components: rustfmt, clippy
-
-      - name: Install GTK and build dependencies
+          node-version: 20
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+      - name: install dependencies (ubuntu only)
+        if: matrix.platform == 'ubuntu-20.04'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libgdk-pixbuf2.0-dev libcairo2-dev libglib2.0-dev
-      
-      - name: Install libsoup and pkg-config
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libsoup2.4-dev pkg-config
-
-      - name: Install WebKitGTK and JavaScriptCore dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.0-dev libjavascriptcoregtk-4.0-dev
-
-      - name: Set PKG_CONFIG_PATH
-        run: echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig" >> $GITHUB_ENV
-
-      - name: Install Tauri CLI
-        run: npm install -g @tauri-apps/cli
-
-      - name: Build Tauri App
-        run: npm run build
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+      - name: install frontend dependencies
+        run: yarn install # change this to npm or pnpm depending on which one you use
+      - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
+          tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
+          releaseName: "App v__VERSION__"
+          releaseBody: "See the assets to download this version and install."
+          releaseDraft: true
           prerelease: false
-
-      - name: Cache Cargo registry
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Find NSIS Installer
-        id: find_nsis_installer
-        run: echo "nsis_installer_path=$(find ./src-tauri/target/release/bundle/nsis -name '*.exe' | head -n 1)" >> $GITHUB_ENV
-
-      - name: Find MSI Installer
-        id: find_msi_installer
-        run: echo "msi_installer_path=$(find ./src-tauri/target/release/bundle/msi -name '*.msi' | head -n 1)" >> $GITHUB_ENV
-
-      - name: Find Executable
-        id: find_executable
-        run: echo "executable_path=$(find ./src-tauri/target/release -name 'iCopy*.exe' | head -n 1)" >> $GITHUB_ENV
-
-      - name: Upload NSIS Installer
-        if: env.nsis_installer_path != ''
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.nsis_installer_path }}
-          asset_name: iCopy-${{ github.run_number }}-nsis-installer.exe
-          asset_content_type: application/octet-stream
-
-      - name: Upload MSI Installer
-        if: env.msi_installer_path != ''
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.msi_installer_path }}
-          asset_name: iCopy-${{ github.run_number }}-msi-installer.msi
-          asset_content_type: application/octet-stream
-
-      - name: Upload Executable
-        if: env.executable_path != ''
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.executable_path }}
-          asset_name: iCopy-${{ github.run_number }}.exe
-          asset_content_type: application/octet-stream
