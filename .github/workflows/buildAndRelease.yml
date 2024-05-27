@@ -9,7 +9,7 @@ jobs:
   build-and-release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Setup Node.js
         uses: actions/setup-node@v2
@@ -19,8 +19,18 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          components: rustfmt, clippy
+
+      - name: Install Tauri CLI
+        run: npm install -g @tauri-apps/cli
+
       - name: Build Tauri App
-        run: npm tauri build
+        run: npm run tauri build
 
       - name: Create Release
         id: create_release
@@ -35,45 +45,45 @@ jobs:
 
       - name: Find NSIS Installer
         id: find_nsis_installer
-        run: echo "::set-output name=nsis_installer_path::$(find ./src-tauri/target/release/bundle/nsis -name '*.exe' | head -n 1)"
+        run: echo "nsis_installer_path=$(find ./src-tauri/target/release/bundle/nsis -name '*.exe' | head -n 1)" >> $GITHUB_ENV
 
       - name: Find MSI Installer
         id: find_msi_installer
-        run: echo "::set-output name=msi_installer_path::$(find ./src-tauri/target/release/bundle/msi -name '*.msi' | head -n 1)"
+        run: echo "msi_installer_path=$(find ./src-tauri/target/release/bundle/msi -name '*.msi' | head -n 1)" >> $GITHUB_ENV
 
       - name: Find Executable
         id: find_executable
-        run: echo "::set-output name=executable_path::$(find ./src-tauri/target/release -name 'iCopy*.exe' | head -n 1)"
+        run: echo "executable_path=$(find ./src-tauri/target/release -name 'iCopy*.exe' | head -n 1)" >> $GITHUB_ENV
 
       - name: Upload NSIS Installer
-        if: steps.find_nsis_installer.outputs.nsis_installer_path
-        uses: actions/upload-release-asset@v1
+        if: env.nsis_installer_path != ''
+        uses: actions/upload-release-asset@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.find_nsis_installer.outputs.nsis_installer_path }}
+          asset_path: ${{ env.nsis_installer_path }}
           asset_name: iCopy-${{ github.run_number }}-nsis-installer.exe
           asset_content_type: application/octet-stream
 
       - name: Upload MSI Installer
-        if: steps.find_msi_installer.outputs.msi_installer_path
-        uses: actions/upload-release-asset@v1
+        if: env.msi_installer_path != ''
+        uses: actions/upload-release-asset@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.find_msi_installer.outputs.msi_installer_path }}
+          asset_path: ${{ env.msi_installer_path }}
           asset_name: iCopy-${{ github.run_number }}-msi-installer.msi
           asset_content_type: application/octet-stream
 
       - name: Upload Executable
-        if: steps.find_executable.outputs.executable_path
-        uses: actions/upload-release-asset@v1
+        if: env.executable_path != ''
+        uses: actions/upload-release-asset@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.find_executable.outputs.executable_path }}
+          asset_path: ${{ env.executable_path }}
           asset_name: iCopy-${{ github.run_number }}.exe
           asset_content_type: application/octet-stream
