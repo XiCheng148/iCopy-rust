@@ -4,7 +4,7 @@
     "beforeDevCommand": "pnpm run serve:tauri"
   },
   "package": {
-    "productName": "tauri-skeleton",
+    "productName": "iCopy",
     "version": "0.1.0"
   },
   "tauri": {
