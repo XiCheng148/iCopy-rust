@@ -1,9 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/schema.json",
   "build": {
-    "beforeDevCommand": "pnpm run serve:tauri",
-    "devPath": "http://localhost:8080",
-    "distDir": "../build"
+    "beforeDevCommand": "pnpm run serve:tauri"
   },
   "package": {
     "productName": "tauri-skeleton",

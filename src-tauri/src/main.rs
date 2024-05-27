@@ -50,17 +50,17 @@ fn main() {
             //     .set_position(Position::Logical(tauri::LogicalPosition { x: 200.0, y: 100.0 }))
             //     .unwrap();
             // 监听窗口失焦事件
-            // _main_window.on_window_event(move |event| {
-            //     match event {
-            //         tauri::WindowEvent::Focused(focused) => {
-            //             if !focused {
-            //                 // Use the cloned window handle to hide the window
-            //                 main_window_clone.hide().expect("无法隐藏窗口");
-            //             }
-            //         }
-            //         _ => {}
-            //     }
-            // });
+            _main_window.on_window_event(move |event| {
+                match event {
+                    tauri::WindowEvent::Focused(focused) => {
+                        if !focused {
+                            // Use the cloned window handle to hide the window
+                            main_window_clone.hide().expect("无法隐藏窗口");
+                        }
+                    }
+                    _ => {}
+                }
+            });
             let _main_window = app.get_window("main").expect("找不到名为 'main' 的窗口");
             let main_window_clone = _main_window.clone(); // Clone the window handle
             // 注册全局快捷键
