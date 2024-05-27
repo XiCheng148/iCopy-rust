@@ -12,7 +12,7 @@ export function useDexie() {
   const list = ref([]);
 
   const add = async (
-    content: string | [],
+    content: any,
     type: 'html' | 'img' | 'text' | 'rtf' = 'text'
   ) => {
     await db.list.add({ content, time: new Date(), type });

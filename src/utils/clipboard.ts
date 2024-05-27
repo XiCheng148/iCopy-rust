@@ -3,7 +3,7 @@ import {
   onClipboardUpdate,
   onImageUpdate,
   onTextUpdate,
-  onHTMLUpdate,
+  // onHTMLUpdate,
   onRTFUpdate,
   onFilesUpdate,
   startListening,
@@ -25,7 +25,7 @@ export function useClipboard() {
   let unlistenImageUpdate: UnlistenFn;
   let unlistenHtmlUpdate: UnlistenFn;
   let unlistenRTF: UnlistenFn;
-  let unlistenClipboard: () => Promise<void>;
+  let unlistenClipboard = ref(null);
   let unlistenFiles: UnlistenFn;
   const has = ref({
     html: {
@@ -58,7 +58,6 @@ export function useClipboard() {
 
   onMounted(async () => {
     unlistenTextUpdate = await onTextUpdate(async newText => {
-      // console.log('newText: ', newText);
       if (has.value.text.content === newText) return;
       if (!/\S/.test(newText)) return;
       if (hasNew.value) return;
@@ -71,18 +70,24 @@ export function useClipboard() {
     //   await add(newHtml);
     // });
     unlistenImageUpdate = await onImageUpdate(async b64Str => {
+      if (has.value.img.content === b64Str) return;
       if (!hasNew.value) hasNew.value = true;
       await add(b64Str, 'img');
+      has.value.img.content = b64Str;
     });
     unlistenFiles = await onFilesUpdate(async newFiles => {
+      if (has.value.flies.content === newFiles) return;
       if (!hasNew.value) hasNew.value = true;
       await add(JSON.stringify(newFiles));
+      has.value.flies.content = newFiles;
     });
     unlistenRTF = await onRTFUpdate(async newRTF => {
+      if (has.value.rtf.content === newRTF) return;
       if (!hasNew.value) hasNew.value = true;
       await add(newRTF);
+      has.value.rtf.content = newRTF;
     });
-    unlistenClipboard = await startListening();
+    unlistenClipboard.value = await startListening();
 
     onClipboardUpdate(async () => {
       has.value.html.has = await hasHTML();
@@ -98,10 +103,11 @@ export function useClipboard() {
     if (unlistenImageUpdate) unlistenImageUpdate();
     if (unlistenHtmlUpdate) unlistenHtmlUpdate();
     if (unlistenFiles) unlistenFiles();
-    if (unlistenClipboard) unlistenClipboard();
+    if (unlistenClipboard.value) unlistenClipboard.value();
   });
   return {
     monitorRunning,
     hasNew,
+    unlistenClipboard,
   };
 }

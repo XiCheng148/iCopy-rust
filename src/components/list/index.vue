@@ -3,10 +3,10 @@ import { ref, onMounted, watch } from 'vue';
 // import Item from '../item/index.vue';
 import { useDexie } from '../../utils/db.js';
 import { useClipboard } from '../../utils/clipboard.js';
-import { startListening, stopMonitor } from 'tauri-plugin-clipboard-api';
+import { writeText, writeImageBase64 } from 'tauri-plugin-clipboard-api';
 
 const { list, fetchList } = useDexie();
-const { hasNew, monitorRunning } = useClipboard();
+const { hasNew, monitorRunning, unlistenClipboard } = useClipboard();
 
 watch(hasNew, async () => {
   if (hasNew.value) {
@@ -24,24 +24,17 @@ const snackbar = ref({
 const copy = async (item: any) => {
   isTwice.value++;
   if (isTwice.value === 2) {
-    await stopMonitor();
-    if (!monitorRunning.value) {
-      isTwice.value = 0;
+    isTwice.value = 0;
+    try {
       if (item.type !== 'img') {
-        navigator.clipboard.writeText(item.content);
+        writeText(item.content);
       } else if (item.type === 'img') {
-        const res = await fetch(item.content);
-        const blob = await res.blob();
-        await navigator.clipboard.write([
-          new ClipboardItem({
-            'image/jpg': blob,
-          }),
-        ]);
+        writeImageBase64(item.content);
       }
-
-      await startListening();
       snackbar.value.isShow = true;
       snackbar.value.text = '已复制到剪切板';
+    } catch (error) {
+      console.error('error------', error);
     }
   }
 };
@@ -53,6 +46,7 @@ onMounted(async () => {
 
 <template>
   <div>
+    {{ monitorRunning ? '已启动' : '未启动！！' }}
     <v-virtual-scroll :items="list" height="100%" item-height="200">
       <template v-slot:default="{ item }">
         <div
@@ -64,7 +58,7 @@ onMounted(async () => {
             'ring-1 ring-inset ring-white/10 rounded-lg shadow-xl',
             'transition-all hover:-translate-y-1',
             'overflow-hidden',
-            'text-elipsis',
+            'select-none'
           ]"
           @click="copy(item)"
         >
