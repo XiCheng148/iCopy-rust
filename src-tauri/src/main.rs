@@ -8,22 +8,21 @@ use tauri::{
     SystemTray,
     SystemTrayEvent,
     SystemTrayMenu,
-    WindowEvent,
     GlobalShortcutManager,
 };
 
 fn main() {
     let context = tauri::generate_context!();
     let tray_menu = SystemTrayMenu::new()
-        。add_item(CustomMenuItem::new("show".to_string(), "显示"))
-        。add_item(CustomMenuItem::new("quit".to_string(), "退出"));
+        .add_item(CustomMenuItem::new("show".to_string(), "显示"))
+        .add_item(CustomMenuItem::new("quit".to_string(), "退出"));
 
     let system_tray = SystemTray::new().with_menu(tray_menu);
 
     tauri::Builder
         ::default()
-        。system_tray(system_tray)
-        。on_system_tray_event(|app, event| {
+        .system_tray(system_tray)
+        .on_system_tray_event(|app, event| {
             match event {
                 SystemTrayEvent::MenuItemClick { id, .. } => {
                     if id == "quit" {
@@ -39,7 +38,7 @@ fn main() {
                 _ => {}
             }
         })
-        。setup(|app| {
+        .setup(|app| {
             let _main_window = app.get_window("main").expect("找不到名为 'main' 的窗口");
             let main_window_clone = _main_window.clone(); // Clone the window handle
 
