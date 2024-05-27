@@ -4,8 +4,7 @@
     "beforeDevCommand": "pnpm run serve:tauri"
   },
   "package": {
-    "productName": "iCopy",
-    "version": "0.1.0"
+    "productName": "iCopy"
   },
   "tauri": {
     "systemTray": {
@@ -49,7 +48,12 @@
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
-        "timestampUrl": ""
+        "timestampUrl": "",
+        "wix": {
+          "language": [
+            "zh-CN"
+          ]
+        }
       }
     },
     "security": {
