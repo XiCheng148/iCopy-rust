@@ -57,7 +57,7 @@ jobs:
 
       - name: Upload NSIS Installer
         if: env.nsis_installer_path != ''
-        uses: actions/upload-release-asset@v2
+        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -68,7 +68,7 @@ jobs:
 
       - name: Upload MSI Installer
         if: env.msi_installer_path != ''
-        uses: actions/upload-release-asset@v2
+        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -79,7 +79,7 @@ jobs:
 
       - name: Upload Executable
         if: env.executable_path != ''
-        uses: actions/upload-release-asset@v2
+        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
