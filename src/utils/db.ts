@@ -1,5 +1,5 @@
 // src/hooks/useDexie.js
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref } from 'vue';
 import Dexie from 'dexie';
 
 // 创建数据库
@@ -9,7 +9,7 @@ db.version(1).stores({
 });
 
 export function useDexie() {
-  const list = ref([]);
+  const clipboardList = ref([]);
 
   const add = async (
     content: any,
@@ -20,8 +20,8 @@ export function useDexie() {
   };
 
   const fetchList = async () => {
-    list.value = await db.list.orderBy('time').reverse().toArray();
-    console.log('fetchList: ', JSON.parse(JSON.stringify(list.value)));
+    clipboardList.value = await db.list.orderBy('time').reverse().toArray();
+    console.log('fetchList: ', JSON.parse(JSON.stringify(clipboardList.value)));
   };
 
   // onMounted(() => {
@@ -29,7 +29,7 @@ export function useDexie() {
   // });
 
   return {
-    list,
+    clipboardList,
     add,
     fetchList,
   };

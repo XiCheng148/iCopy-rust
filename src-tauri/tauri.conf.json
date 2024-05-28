@@ -68,10 +68,10 @@
         "decorations": false,
         "transparent": true,
         "fullscreen": false,
-        "height": 500,
+        "height": 350,
         "resizable": true,
         "title": "ICopy",
-        "width": 350,
+        "width": 550,
         "x": 0,
         "y": 0
       }

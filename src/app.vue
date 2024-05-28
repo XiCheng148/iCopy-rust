@@ -1,17 +1,22 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import List from './components/list/index.vue';
-import { LogicalSize, appWindow } from '@tauri-apps/api/window';
+import { LogicalSize, appWindow, PhysicalSize } from '@tauri-apps/api/window';
 import { primaryMonitor } from '@tauri-apps/api/window';
+import { useClipboard } from './utils/clipboard';
 
-async function setWindowToMaxHeight() {
+const setWindowToMaxHeight = async () => {
   const monitor = await primaryMonitor();
   if (monitor) {
-    const { height } = monitor.size;
-    console.log('height: ', height);
-    await appWindow.setSize(new LogicalSize(350, height)); // 设置宽度为 800，高度为屏幕工作区高度
+    const { width, height } = monitor.size;
+    console.log('window size: ', monitor.size);
+    await appWindow.setSize(new PhysicalSize(width, 550)); // 设置宽度为 800，高度为屏幕工作区高度
   }
-}
+};
+
+const tagClick = () => {
+  console.log('todo tagClick');
+};
 
 onMounted(async () => {
   await setWindowToMaxHeight();
@@ -19,7 +24,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="m-4 w-100vw mx-auto px-4">
+  <div class="h-100vh flex flex-col rounded-xl bg-dark/80">
     <!-- 搜索🔍 -->
     <!-- <v-text-field clearable>
       <template v-slot:prepend>
@@ -30,6 +35,35 @@ onMounted(async () => {
         />
       </template>
     </v-text-field> -->
-    <List class="w-full" />
+    <div
+      :class="[
+        'flex h-40px gap-x-8 select-none p-2 justify-between',
+        'text-white/90',
+      ]"
+    >
+      <div
+        class="w-10px h-10px rounded-full"
+      ></div>
+      <!-- search -->
+      <div class="flex gap-x-8">
+        <div class="cursor-pointer hover:text-green" @click="tagClick">
+          搜索
+        </div>
+        <div class="cursor-pointer hover:text-green" @click="tagClick">
+          全部
+        </div>
+        <div class="cursor-pointer hover:text-green" @click="tagClick">
+          收藏
+        </div>
+        <div class="cursor-pointer hover:text-green" @click="tagClick">
+          标签
+        </div>
+        <div class="cursor-pointer hover:text-green" @click="tagClick">
+          号码
+        </div>
+      </div>
+      <div class="w-10px h-10px bg-transparent"></div>
+    </div>
+    <List class="flex-grow" />
   </div>
 </template>

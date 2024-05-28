@@ -1,4 +1,4 @@
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import {
   onClipboardUpdate,
   onImageUpdate,
