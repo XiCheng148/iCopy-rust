@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import List from './components/list/index.vue';
-import { LogicalSize, appWindow, PhysicalSize } from '@tauri-apps/api/window';
+import { appWindow, PhysicalSize } from '@tauri-apps/api/window';
 import { primaryMonitor } from '@tauri-apps/api/window';
-import { useClipboard } from './utils/clipboard';
-
-const setWindowToMaxHeight = async () => {
+import { useStorage } from '@vueuse/core';
+const setWindowSize = async () => {
   const monitor = await primaryMonitor();
   if (monitor) {
-    const { width, height } = monitor.size;
-    console.log('window size: ', monitor.size);
-    await appWindow.setSize(new PhysicalSize(width, 550)); // 设置宽度为 800，高度为屏幕工作区高度
+    const { width } = monitor.size;
+    console.log('window size: ', width, Math.floor(width / 7));
+    await appWindow.setSize(new PhysicalSize(width, Math.floor(width / 7))); // 设置宽度为 800，高度为屏幕工作区高度
   }
 };
-
 const tagClick = () => {
   console.log('todo tagClick');
 };
 
+const monitorRunning = useStorage('monitorRunning', false);
+
 onMounted(async () => {
-  await setWindowToMaxHeight();
+  await setWindowSize();
 });
 </script>
 
@@ -41,9 +41,14 @@ onMounted(async () => {
         'text-white/90',
       ]"
     >
-      <div
-        class="w-10px h-10px rounded-full"
-      ></div>
+      <div class="flex gap-x-10px">
+        <div
+          class="w-14px h-14px rounded-full"
+          :class="monitorRunning ? 'bg-green' : 'bg-[#f00]'"
+        ></div>
+        <!-- <div class="w-10px h-10px rounded-full cursor-poin">1</div>
+        <div class="w-10px h-10px rounded-full cursor-poin">2</div> -->
+      </div>
       <!-- search -->
       <div class="flex gap-x-8">
         <div class="cursor-pointer hover:text-green" @click="tagClick">

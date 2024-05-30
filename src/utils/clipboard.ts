@@ -16,11 +16,11 @@ import {
 } from 'tauri-plugin-clipboard-api';
 import { UnlistenFn } from '@tauri-apps/api/event';
 import { useDexie } from './db';
-
+import { useStorage } from '@vueuse/core';
 export function useClipboard() {
   const { add } = useDexie();
 
-  let monitorRunning = ref(false);
+  const monitorRunning = useStorage('monitorRunning', false, localStorage);
   let unlistenTextUpdate: UnlistenFn;
   let unlistenImageUpdate: UnlistenFn;
   let unlistenHtmlUpdate: UnlistenFn;
