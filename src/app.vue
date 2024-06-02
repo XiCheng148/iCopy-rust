@@ -4,6 +4,8 @@ import List from './components/list/index.vue';
 import { appWindow, PhysicalSize } from '@tauri-apps/api/window';
 import { primaryMonitor } from '@tauri-apps/api/window';
 import { useStorage } from '@vueuse/core';
+import { useDexie } from './utils/db';
+
 const setWindowSize = async () => {
   const monitor = await primaryMonitor();
   if (monitor) {
@@ -25,10 +27,12 @@ const hideWindowWithEscape = async (e: any) => {
 
 const monitorRunning = useStorage('monitorRunning', false);
 
+const { exportData, importData } = useDexie();
+
 onMounted(async () => {
   await setWindowSize();
-  window.addEventListener('keyup',  e => {
-    hideWindowWithEscape(e)
+  window.addEventListener('keyup', e => {
+    hideWindowWithEscape(e);
   });
 });
 </script>
@@ -50,11 +54,9 @@ onMounted(async () => {
     >
       <div class="flex gap-x-10px">
         <div
-          class="w-14px h-14px rounded-full"
+          class="w-14px h-14px rounded-full cursor-pointer"
           :class="monitorRunning ? 'bg-green' : 'bg-[#f00]'"
         ></div>
-        <!-- <div class="w-10px h-10px rounded-full cursor-poin">1</div>
-        <div class="w-10px h-10px rounded-full cursor-poin">2</div> -->
       </div>
       <!-- search -->
       <div class="flex gap-x-8">
@@ -74,7 +76,18 @@ onMounted(async () => {
           号码
         </div>
       </div>
-      <div class="w-10px h-10px bg-transparent"></div>
+      <div>
+        <img
+          class="w-24px h-24px rounded-full cursor-pointer"
+          @click="exportData"
+          src="./assets/svg/export.svg"
+        />
+        <img
+          class="w-24px h-24px rounded-full cursor-pointer"
+          @click="importData"
+          src="./assets/svg/import.svg"
+        />
+      </div>
     </div>
     <List class="flex-grow" />
   </div>

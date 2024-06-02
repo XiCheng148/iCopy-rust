@@ -2,14 +2,18 @@
   <div
     :class="[
       'bg-slate-800 w-197px text-4 leading-6',
-      'flex flex-col justify-between overflow-hidden',
+      'flex flex-col justify-between',
       item.type === 'img' ? 'justify-center items-center' : '',
       'ring-1 ring-inset ring-white/10 rounded-lg shadow-xl',
       'transition-all hover:-translate-y-1',
-      'select-none',
+      'select-none relative',
     ]"
     @dblclick="copy(item)"
   >
+    <div
+      class="absolute top-0 right-0 cursor-pointer w-2 h-2 rounded-full bg-[#fff] hover:bg-green"
+      @click="deleteById(item.id)"
+    ></div>
     <div class="line-clamp-5" :class="item.type !== 'img' ? 'm-2' : ''">
       {{ item.type !== 'img' ? item.content : '' }}
     </div>
@@ -29,9 +33,9 @@
   </div>
 </template>
 <script setup lang="ts">
-import { useTimeAgo } from '@vueuse/core';
 import { PropType, computed } from 'vue';
 import { formatTimeAgo } from '@vueuse/core';
+import { useDexie } from '../../utils/db';
 
 defineProps({
   item: {
@@ -39,17 +43,20 @@ defineProps({
       type: string;
       content: string;
       time: string;
+      id: number;
     }>,
     default: () => ({}),
   },
 });
 const emit = defineEmits(['copy']);
-const getTimeAgo = computed(() => time => {
+const getTimeAgo = computed(() => (time: any) => {
   return formatTimeAgo(time, {});
 });
 const copy = (item: any) => {
   emit('copy', item);
 };
+
+const { deleteById } = useDexie();
 </script>
 <style scoped>
 .bg {

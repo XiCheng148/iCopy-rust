@@ -25,7 +25,7 @@ export function useClipboard() {
   let unlistenImageUpdate: UnlistenFn;
   let unlistenHtmlUpdate: UnlistenFn;
   let unlistenRTF: UnlistenFn;
-  let unlistenClipboard = ref(null);
+  let unlistenClipboard = ref();
   let unlistenFiles: UnlistenFn;
   const has = ref({
     html: {
@@ -45,7 +45,7 @@ export function useClipboard() {
       has: false,
     },
     flies: {
-      content: [],
+      content: '',
       has: false,
     },
   });
@@ -76,10 +76,10 @@ export function useClipboard() {
       has.value.img.content = b64Str;
     });
     unlistenFiles = await onFilesUpdate(async newFiles => {
-      if (has.value.flies.content === newFiles) return;
+      if (has.value.flies.content === JSON.stringify(newFiles)) return;
       if (!hasNew.value) hasNew.value = true;
       await add(JSON.stringify(newFiles));
-      has.value.flies.content = newFiles;
+      has.value.flies.content = JSON.stringify(newFiles);
     });
     unlistenRTF = await onRTFUpdate(async newRTF => {
       if (has.value.rtf.content === newRTF) return;
