@@ -8,6 +8,7 @@
     "productName": "iCopy"
   },
   "tauri": {
+    "macOSPrivateApi": true,
     "systemTray": {
       "iconPath": "icons/icon.ico"
     },
@@ -70,7 +71,7 @@
         "transparent": true,
         "fullscreen": false,
         "height": 350,
-        "resizable": true,
+        "resizable": false,
         "title": "ICopy",
         "width": 550,
         "x": 0,

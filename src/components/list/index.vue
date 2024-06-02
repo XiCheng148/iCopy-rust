@@ -38,15 +38,13 @@ const handleWheel = event => {
   if (scrollContainer.value) {
     event.preventDefault(); // 阻止默认的垂直滚动行为
     if (event.deltaY > 0) {
-      if (index.value <= clipboardList.value.length) index.value += 1;
+      if (index.value <= clipboardList.value.length - 9) index.value += 1;
     } else {
       if (index.value !== 0) index.value -= 1;
     }
     scrollTo(index.value);
   }
 };
-
-
 
 watch(hasNew, async () => {
   if (hasNew.value) {
