@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onMounted } from 'vue';
 import List from './components/list/index.vue';
 import { appWindow, PhysicalSize } from '@tauri-apps/api/window';
 import { primaryMonitor } from '@tauri-apps/api/window';
@@ -36,10 +36,7 @@ onMounted(async () => {
       </template>
     </v-text-field> -->
     <div
-      :class="[
-        'flex gap-x-8 select-none p-2 justify-between',
-        'text-white/90',
-      ]"
+      :class="['flex gap-x-8 select-none p-2 justify-between', 'text-white/90']"
     >
       <div class="flex gap-x-10px">
         <div

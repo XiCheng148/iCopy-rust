@@ -1,7 +1,7 @@
 <template>
   <div
     :class="[
-      'bg-slate-800 w-200px text-14px leading-18px',
+      'bg-slate-800 w-200px text-4 leading-6',
       'flex flex-col justify-between overflow-hidden',
       item.type === 'img' ? 'justify-center items-center' : '',
       'ring-1 ring-inset ring-white/10 rounded-lg shadow-xl',
