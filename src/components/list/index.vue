@@ -38,7 +38,7 @@ const handleWheel = event => {
   if (scrollContainer.value) {
     event.preventDefault(); // 阻止默认的垂直滚动行为
     if (event.deltaY > 0) {
-      if (index.value <= clipboardList.value.length - 9) index.value += 1;
+      if (index.value <= clipboardList.value.length) index.value += 1;
     } else {
       if (index.value !== 0) index.value -= 1;
     }
@@ -62,7 +62,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div v-bind="containerProps" class="p-4 pt-1 flex-grow">
+  <div v-bind="containerProps" class="p-2 pt-1 flex-grow">
     <div v-bind="wrapperProps" class="gap-x-16px" ref="scrollContainer">
       <!-- <pre>{{ list }}</pre> -->
       <Item

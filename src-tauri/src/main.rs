@@ -43,23 +43,23 @@ fn main() {
             let main_window_clone = _main_window.clone(); // Clone the window handle
 
             // 监听窗口失焦事件
-            _main_window.on_window_event(move |event| {
-                match event {
-                    tauri::WindowEvent::Focused(focused) => {
-                        if !focused {
-                            // Use the cloned window handle to hide the window
-                            main_window_clone.hide().expect("无法隐藏窗口");
-                        }
-                    }
-                    _ => {}
-                }
-            });
+            // _main_window.on_window_event(move |event| {
+            //     match event {
+            //         tauri::WindowEvent::Focused(focused) => {
+            //             if !focused {
+            //                 // Use the cloned window handle to hide the window
+            //                 main_window_clone.hide().expect("无法隐藏窗口");
+            //             }
+            //         }
+            //         _ => {}
+            //     }
+            // });
 
             let _main_window = app.get_window("main").expect("找不到名为 'main' 的窗口");
             let main_window_clone = _main_window.clone(); // Clone the window handle
             // 注册全局快捷键
             app.global_shortcut_manager()
-                .register("Alt+F1", move || {
+                .register("Command+F1", move || {
                     // 切换窗口的显示状态
                     let is_visible = main_window_clone.is_visible().unwrap();
                     if is_visible {

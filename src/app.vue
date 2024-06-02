@@ -37,7 +37,7 @@ onMounted(async () => {
     </v-text-field> -->
     <div
       :class="[
-        'flex h-40px gap-x-8 select-none p-2 justify-between',
+        'flex gap-x-8 select-none p-2 justify-between',
         'text-white/90',
       ]"
     >

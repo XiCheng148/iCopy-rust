@@ -25,6 +25,7 @@
     "@vueuse/core": "^10.10.0",
     "cross-env": "7.0.3",
     "sass": "1.63.6",
+    "typescript": "^5.4.5",
     "unocss": "^0.59.4",
     "vite": "4.4.2"
   },
