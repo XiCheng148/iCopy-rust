@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import List from './components/list/index.vue';
 import { appWindow, PhysicalSize } from '@tauri-apps/api/window';
 import { primaryMonitor } from '@tauri-apps/api/window';
@@ -16,10 +16,20 @@ const tagClick = () => {
   console.log('todo tagClick');
 };
 
+const hideWindowWithEscape = async (e: any) => {
+  if (e.key === 'Escape') {
+    // 使用 Tauri API 隐藏窗口
+    appWindow.hide();
+  }
+};
+
 const monitorRunning = useStorage('monitorRunning', false);
 
 onMounted(async () => {
   await setWindowSize();
+  window.addEventListener('keyup',  e => {
+    hideWindowWithEscape(e)
+  });
 });
 </script>
 
