@@ -14,12 +14,13 @@ const { hasNew } = useClipboard();
 const { list, containerProps, wrapperProps, scrollTo } = useVirtualList<any>(
   clipboardList,
   {
-    itemWidth: 250,
+    itemWidth: 197,
     overscan: 1,
   }
 );
 
 const scrollContainer = ref();
+
 const index = ref(0);
 const copy = async (item: any) => {
   try {
@@ -34,7 +35,7 @@ const copy = async (item: any) => {
   }
 };
 
-const handleWheel = event => {
+const handleWheel = (event: any) => {
   if (scrollContainer.value) {
     event.preventDefault(); // 阻止默认的垂直滚动行为
     if (event.deltaY > 0) {
