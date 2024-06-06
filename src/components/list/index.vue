@@ -88,7 +88,6 @@ onMounted(async () => {
           :size-dependencies="[item.message]"
           :data-index="index"
           :data-active="active"
-          :title="`Click to change message ${index}`"
           class="w-210px pt-10px h-[calc(100%-10px)]"
         >
           <Item :item="item" @copy="copy" @del="del" class="h-full" />
