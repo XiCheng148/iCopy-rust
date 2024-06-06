@@ -38,7 +38,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="h-100vh flex flex-col rounded-xl bg-dark/80">
+  <div class="h-100vh flex flex-col rounded-xl bg-dark">
     <!-- 搜索🔍 -->
     <!-- <v-text-field clearable>
       <template v-slot:prepend>

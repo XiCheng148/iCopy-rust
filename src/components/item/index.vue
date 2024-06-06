@@ -8,13 +8,16 @@
       'transition-all hover:-translate-y-1',
       'select-none relative',
     ]"
-    @dblclick="copy(item)"
   >
     <div
-      class="absolute top-0 right-0 cursor-pointer w-2 h-2 rounded-full bg-[#fff] hover:bg-green"
-      @click="deleteById(item.id)"
+      class="absolute top-0 right-0 cursor-pointer w-3 h-3 rounded-full bg-white/5 hover:bg-red"
+      @click="del(item.id)"
     ></div>
-    <div class="line-clamp-5" :class="item.type !== 'img' ? 'm-2' : ''">
+    <div
+      class="line-clamp-5"
+      :class="item.type !== 'img' ? 'm-2' : ''"
+      @dblclick="copy(item)"
+    >
       {{ item.type !== 'img' ? item.content : '' }}
     </div>
     <div
@@ -23,9 +26,10 @@
       :style="{
         'background-image': `url(data:image/jpg;base64,${item.content})`,
       }"
+      @dblclick="copy(item)"
     ></div>
     <div
-      class="w-full flex justify-between bg-white/10 text-slate-400 line-clamp-1"
+      class="w-full flex justify-between bg-white/10 text-slate-400 line-clamp-1 rounded-b-lg"
     >
       <div class="ml-10px">{{ item.type }}</div>
       <div class="mr-10px">{{ getTimeAgo(item.time) }}</div>
@@ -48,15 +52,18 @@ defineProps({
     default: () => ({}),
   },
 });
-const emit = defineEmits(['copy']);
+const emit = defineEmits(['copy', 'del']);
 const getTimeAgo = computed(() => (time: any) => {
   return formatTimeAgo(time, {});
 });
 const copy = (item: any) => {
   emit('copy', item);
 };
-
 const { deleteById } = useDexie();
+const del = (id: any) => {
+  deleteById(id);
+  emit('del', id);
+};
 </script>
 <style scoped>
 .bg {

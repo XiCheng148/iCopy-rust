@@ -11,7 +11,7 @@ db.version(1).stores({
 });
 
 export function useDexie() {
-  const clipboardList = ref([]);
+  const clipboardList = ref<any>([]);
 
   const add = async (
     content: any,
@@ -22,8 +22,10 @@ export function useDexie() {
   };
 
   const fetchList = async () => {
-    clipboardList.value = await db.list.orderBy('time').reverse().toArray();
+    const data: any = await db.list.orderBy('time').reverse().toArray();
+    clipboardList.value = [...data];
     console.log('fetchList: ', JSON.parse(JSON.stringify(clipboardList.value)));
+    return data;
   };
 
   const deleteById = async (id: number) => {

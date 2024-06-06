@@ -81,12 +81,12 @@ export function useClipboard() {
       await add(JSON.stringify(newFiles));
       has.value.flies.content = JSON.stringify(newFiles);
     });
-    unlistenRTF = await onRTFUpdate(async newRTF => {
-      if (has.value.rtf.content === newRTF) return;
-      if (!hasNew.value) hasNew.value = true;
-      await add(newRTF);
-      has.value.rtf.content = newRTF;
-    });
+    // unlistenRTF = await onRTFUpdate(async newRTF => {
+    //   if (has.value.rtf.content === newRTF) return;
+    //   if (!hasNew.value) hasNew.value = true;
+    //   await add(newRTF);
+    //   has.value.rtf.content = newRTF;
+    // });
     unlistenClipboard.value = await startListening();
 
     onClipboardUpdate(async () => {

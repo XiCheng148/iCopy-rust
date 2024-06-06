@@ -4,20 +4,20 @@ import Item from '../item/index.vue';
 import { useDexie } from '../../utils/db.js';
 import { useClipboard } from '../../utils/clipboard.js';
 import { writeText, writeImageBase64 } from 'tauri-plugin-clipboard-api';
-import { useVirtualList } from '@vueuse/core';
+// import { useVirtualList } from '@vueuse/core';
 import { appWindow } from '@tauri-apps/api/window';
 
 const { clipboardList, fetchList } = useDexie();
 const { hasNew } = useClipboard();
 
 // const filterList = computed(()=>(clipboardList.value.filter((item: any) => item.type == 'img')));
-const { list, containerProps, wrapperProps, scrollTo } = useVirtualList<any>(
-  clipboardList,
-  {
-    itemWidth: 197,
-    overscan: 1,
-  }
-);
+// const { list, containerProps, wrapperProps, scrollTo } = useVirtualList<any>(
+//   clipboardList,
+//   {
+//     itemWidth: 197,
+//     overscan: 1,
+//   }
+// );
 
 const scrollContainer = ref();
 
@@ -30,9 +30,10 @@ const copy = async (item: any) => {
       writeImageBase64(item.content);
     }
     await appWindow.hide();
-  } catch (error) {
-    console.error('error------', error);
-  }
+  } catch (error) {}
+};
+const del = async (item: any) => {
+  await fetchList();
 };
 
 const handleWheel = (event: any) => {
@@ -43,7 +44,12 @@ const handleWheel = (event: any) => {
     } else {
       if (index.value !== 0) index.value -= 1;
     }
-    scrollTo(index.value);
+    try {
+      scrollContainer.value.scrollToItem(index.value);
+    } catch (error) {
+      index.value = clipboardList.value.length - 5;
+      scrollContainer.value.scrollToItem(index.value);
+    }
   }
 };
 
@@ -54,24 +60,42 @@ watch(hasNew, async () => {
   }
 });
 
+watch(clipboardList, () => {
+  console.log('clipboardList', clipboardList);
+});
+
 onMounted(async () => {
   await fetchList();
   if (scrollContainer.value) {
-    scrollContainer.value.addEventListener('wheel', handleWheel);
+    scrollContainer.value.$el.addEventListener('wheel', handleWheel);
   }
 });
 </script>
 
 <template>
-  <div v-bind="containerProps" class="p-2 pt-1 flex-grow">
-    <div v-bind="wrapperProps" class="gap-x-16px" ref="scrollContainer">
-      <!-- <pre>{{ list }}</pre> -->
-      <Item
-        v-for="item in list"
-        :key="item.data.id"
-        :item="item.data"
-        @copy="copy"
-      />
-    </div>
+  <div class="flex">
+    <DynamicScroller
+      :items="clipboardList"
+      :min-item-size="54"
+      direction="horizontal"
+      class="m-10px mt-0"
+      ref="scrollContainer"
+    >
+      <template #default="{ item, index, active }">
+        <DynamicScrollerItem
+          :item="item"
+          :active="active"
+          :size-dependencies="[item.message]"
+          :data-index="index"
+          :data-active="active"
+          :title="`Click to change message ${index}`"
+          class="w-210px pt-10px h-[calc(100%-10px)]"
+        >
+          <Item :item="item" @copy="copy" @del="del" class="h-full" />
+        </DynamicScrollerItem>
+      </template>
+    </DynamicScroller>
   </div>
 </template>
+
+<style scoped></style>
