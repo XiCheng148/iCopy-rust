@@ -41,11 +41,9 @@ fn main() {
             let main_window_clone = _main_window.clone(); // Clone the window handle
 
             // 监听窗口失焦事件
-            let app_env = env
-                ::var("VITE_NETWORK_PROCESSOR")
-                .unwrap_or_else(|_| "development".to_string());
+            let app_env = env::var("VITE_NETWORK_PROCESSOR").unwrap_or_else(|_| "dev".to_string());
             println!("现在是开发环境: {}", app_env);
-            if app_env != "development" {
+            if app_env == "tauri" {
                 _main_window.on_window_event(move |event| {
                     match event {
                         tauri::WindowEvent::Focused(focused) => {
