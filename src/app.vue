@@ -29,6 +29,20 @@ const monitorRunning = useStorage('monitorRunning', false);
 
 const { exportData, importData } = useDexie();
 
+const toggleTheme = (e: any) => {
+  const currentTheme = document.documentElement.getAttribute('data-theme');
+  const newTheme = currentTheme === 'dark' ? '' : 'dark';
+  document.documentElement.style.setProperty('--x', e.clientX + 'px');
+  document.documentElement.style.setProperty('--y', e.clientY + 'px');
+  if ((document as any).startViewTransition) {
+    (document as any).startViewTransition(() => {
+      document.documentElement.setAttribute('data-theme', newTheme);
+    });
+  } else {
+    document.documentElement.setAttribute('data-theme', newTheme);
+  }
+};
+
 onMounted(async () => {
   await setWindowSize();
   window.addEventListener('keyup', e => {
@@ -38,7 +52,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="h-100vh flex flex-col rounded-xl bg-dark">
+  <div class="transition-all h-100vh flex flex-col rounded-xl bg-[var(--bg)]">
     <!-- 搜索🔍 -->
     <!-- <v-text-field clearable>
       <template v-slot:prepend>
@@ -56,6 +70,7 @@ onMounted(async () => {
         <div
           class="w-14px h-14px rounded-full cursor-pointer"
           :class="monitorRunning ? 'bg-green' : 'bg-[#f00]'"
+          @click="toggleTheme"
         ></div>
       </div>
       <!-- search -->

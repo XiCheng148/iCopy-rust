@@ -1,12 +1,12 @@
 <template>
   <div
     :class="[
-      'bg-slate-800 w-197px text-4 leading-6',
-      'flex flex-col justify-between',
       item.type === 'img' ? 'justify-center items-center' : '',
-      'ring-1 ring-inset ring-white/10 rounded-lg shadow-xl',
-      'transition-all hover:-translate-y-1',
-      'select-none relative',
+      'w-197px text-4 leading-6',
+      'flex flex-col justify-between',
+      'ring-1 ring-inset ring-[var(--border)] rounded-lg',
+      'transition-all duration-500 select-none hover:-translate-y-2',
+      'item-bg overflow-hidden relative',
     ]"
   >
     <div
@@ -14,7 +14,7 @@
       @click="del(item.id)"
     ></div>
     <div
-      class="line-clamp-5"
+      class="flex-grow"
       :class="item.type !== 'img' ? 'm-2' : ''"
       @dblclick="copy(item)"
     >
@@ -29,7 +29,7 @@
       @dblclick="copy(item)"
     ></div>
     <div
-      class="w-full flex justify-between bg-white/10 text-slate-400 line-clamp-1 rounded-b-lg"
+      class="transition-all absolute w-full h-auto bottom-0 left-0 bg-[var(--border)] flex justify-between"
     >
       <div class="ml-10px">{{ item.type }}</div>
       <div class="mr-10px">{{ getTimeAgo(item.time) }}</div>
@@ -66,15 +66,64 @@ const del = (id: any) => {
 };
 </script>
 <style scoped>
-.bg {
+.animated {
+  animation-duration: 0.3s;
+  animation-fill-mode: both;
+}
+
+@keyframes wobble {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  15% {
+    transform: translate3d(-5%, 0, 0) rotate3d(0, 0, 1, -5deg);
+  }
+
+  30% {
+    transform: translate3d(5%, 0, 0) rotate3d(0, 0, 1, 3deg);
+  }
+
+  45% {
+    transform: translate3d(-1%, 0, 0) rotate3d(0, 0, 1, -3deg);
+  }
+
+  60% {
+    transform: translate3d(1%, 0, 0) rotate3d(0, 0, 1, 2deg);
+  }
+
+  75% {
+    transform: translate3d(-1%, 0, 0) rotate3d(0, 0, 1, -1deg);
+  }
+
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* .wobble:hover {
+  animation-name: wobble;
+} */
+
+.item-bg {
   background-image: repeating-linear-gradient(
     45deg,
-    #000000,
-    #000000 14px,
-    rgb(255, 231, 114) 14px,
-    rgba(255, 231, 114) 14px,
-    #000000 15px
+    var(--bg),
+    var(--bg) 26px,
+    var(--line) 26px,
+    var(--line) 27px
   );
-  background-size: 20px 20px;
+  background-size: 38px;
+}
+.item-bg:hover {
+  /* background-image: repeating-linear-gradient(
+    45deg,
+    var(--bg),
+    var(--bg) 26px,
+    var(--border) 26px,
+    var(--border) 27px
+  );
+  background-size: 38px; */
+  background-position: 50%;
 }
 </style>
