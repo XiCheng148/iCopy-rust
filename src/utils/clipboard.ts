@@ -1,24 +1,23 @@
-import { ref, onMounted, onUnmounted } from 'vue';
+import {onMounted, onUnmounted, ref} from 'vue';
 import {
-  onClipboardUpdate,
-  onImageUpdate,
-  onTextUpdate,
-  // onHTMLUpdate,
-  onRTFUpdate,
-  onFilesUpdate,
-  startListening,
-  listenToMonitorStatusUpdate,
+  hasFiles,
   hasHTML,
   hasImage,
-  hasText,
   hasRTF,
-  hasFiles,
+  hasText,
+  listenToMonitorStatusUpdate,
+  onClipboardUpdate,
+  onFilesUpdate,
+  onImageUpdate,
+  onTextUpdate,
+  startListening,
 } from 'tauri-plugin-clipboard-api';
-import { UnlistenFn } from '@tauri-apps/api/event';
-import { useDexie } from './db';
-import { useStorage } from '@vueuse/core';
+import {UnlistenFn} from '@tauri-apps/api/event';
+import {useDexie} from './db';
+import {useStorage} from '@vueuse/core';
+
 export function useClipboard() {
-  const { add } = useDexie();
+  const {add} = useDexie();
 
   const monitorRunning = useStorage('monitorRunning', false, localStorage);
   let unlistenTextUpdate: UnlistenFn;
@@ -54,6 +53,7 @@ export function useClipboard() {
 
   listenToMonitorStatusUpdate(running => {
     monitorRunning.value = running;
+  }).then(_ => {
   });
 
   onMounted(async () => {
@@ -89,7 +89,7 @@ export function useClipboard() {
     // });
     unlistenClipboard.value = await startListening();
 
-    onClipboardUpdate(async () => {
+    await onClipboardUpdate(async () => {
       has.value.html.has = await hasHTML();
       has.value.img.has = await hasImage();
       has.value.text.has = await hasText();

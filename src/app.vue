@@ -21,7 +21,7 @@ const tagClick = () => {
 const hideWindowWithEscape = async (e: any) => {
   if (e.key === 'Escape') {
     // 使用 Tauri API 隐藏窗口
-    appWindow.hide();
+    await appWindow.hide();
   }
 };
 

@@ -4,20 +4,10 @@ import Item from '../item/index.vue';
 import { useDexie } from '../../utils/db.js';
 import { useClipboard } from '../../utils/clipboard.js';
 import { writeText, writeImageBase64 } from 'tauri-plugin-clipboard-api';
-// import { useVirtualList } from '@vueuse/core';
 import { appWindow } from '@tauri-apps/api/window';
 
 const { clipboardList, fetchList } = useDexie();
 const { hasNew } = useClipboard();
-
-// const filterList = computed(()=>(clipboardList.value.filter((item: any) => item.type == 'img')));
-// const { list, containerProps, wrapperProps, scrollTo } = useVirtualList<any>(
-//   clipboardList,
-//   {
-//     itemWidth: 197,
-//     overscan: 1,
-//   }
-// );
 
 const scrollContainer = ref();
 
@@ -25,9 +15,9 @@ const index = ref(0);
 const copy = async (item: any) => {
   try {
     if (item.type !== 'img') {
-      writeText(item.content);
+      await writeText(item.content);
     } else if (item.type === 'img') {
-      writeImageBase64(item.content);
+      await writeImageBase64(item.content);
     }
     await appWindow.hide();
   } catch (error) {}

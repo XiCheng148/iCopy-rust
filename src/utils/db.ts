@@ -24,7 +24,6 @@ export function useDexie() {
   const fetchList = async () => {
     const data: any = await db.list.orderBy('time').reverse().toArray();
     clipboardList.value = [...data];
-    console.log('fetchList: ', JSON.parse(JSON.stringify(clipboardList.value)));
     return data;
   };
 
@@ -77,10 +76,6 @@ export function useDexie() {
       await fetchList();
     }
   };
-
-  // onMounted(() => {
-  //   fetchList();
-  // });
 
   return {
     clipboardList,

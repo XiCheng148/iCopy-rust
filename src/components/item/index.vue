@@ -1,6 +1,6 @@
 <template>
   <div
-    :class="[
+      :class="[
       item.type === 'img' ? 'justify-center items-center' : '',
       'w-197px text-4 leading-6',
       'flex flex-col justify-between',
@@ -10,26 +10,26 @@
     ]"
   >
     <div
-      class="absolute top-0 right-0 cursor-pointer w-3 h-3 rounded-full bg-white/5 hover:bg-red"
-      @click="del(item.id)"
+        class="absolute top-0 right-0 cursor-pointer w-3 h-3 rounded-full bg-white/5 hover:bg-red"
+        @click="del(item.id)"
     ></div>
     <div
-      class="flex-grow"
-      :class="item.type !== 'img' ? 'm-2' : ''"
-      @dblclick="copy(item)"
+        class="flex-grow"
+        :class="item.type !== 'img' ? 'm-2' : ''"
+        @dblclick="copy(item)"
     >
       {{ item.type !== 'img' ? item.content : '' }}
     </div>
     <div
-      v-if="item.type === 'img'"
-      class="w-full h-full bg-contain bg-no-repeat bg-center"
-      :style="{
+        v-if="item.type === 'img'"
+        class="w-full h-full bg-contain bg-no-repeat bg-center"
+        :style="{
         'background-image': `url(data:image/jpg;base64,${item.content})`,
       }"
-      @dblclick="copy(item)"
+        @dblclick="copy(item)"
     ></div>
     <div
-      class="transition-all absolute w-full h-auto bottom-0 left-0 bg-[var(--border)] flex justify-between"
+        class="transition-all absolute w-full h-auto bottom-0 left-0 bg-[var(--border)] flex justify-between"
     >
       <div class="ml-10px">{{ item.type }}</div>
       <div class="mr-10px">{{ getTimeAgo(item.time) }}</div>
@@ -37,9 +37,9 @@
   </div>
 </template>
 <script setup lang="ts">
-import { PropType, computed } from 'vue';
-import { formatTimeAgo } from '@vueuse/core';
-import { useDexie } from '../../utils/db';
+import {computed, PropType} from 'vue';
+import {formatTimeAgo} from '@vueuse/core';
+import {useDexie} from '../../utils/db';
 
 defineProps({
   item: {
@@ -59,7 +59,7 @@ const getTimeAgo = computed(() => (time: any) => {
 const copy = (item: any) => {
   emit('copy', item);
 };
-const { deleteById } = useDexie();
+const {deleteById} = useDexie();
 const del = (id: any) => {
   deleteById(id);
   emit('del', id);
@@ -101,29 +101,22 @@ const del = (id: any) => {
   }
 }
 
-/* .wobble:hover {
+.wobble:hover {
   animation-name: wobble;
-} */
+}
 
 .item-bg {
   background-image: repeating-linear-gradient(
-    45deg,
-    var(--bg),
-    var(--bg) 26px,
-    var(--line) 26px,
-    var(--line) 27px
+      45deg,
+      var(--bg),
+      var(--bg) 26px,
+      var(--line) 26px,
+      var(--line) 27px
   );
   background-size: 38px;
 }
+
 .item-bg:hover {
-  /* background-image: repeating-linear-gradient(
-    45deg,
-    var(--bg),
-    var(--bg) 26px,
-    var(--border) 26px,
-    var(--border) 27px
-  );
-  background-size: 38px; */
   background-position: 50%;
 }
 </style>
