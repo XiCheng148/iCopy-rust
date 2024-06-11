@@ -8,6 +8,12 @@ use tauri::{
     SystemTrayMenu,
     GlobalShortcutManager,
 };
+use rusqlite::Connection;
+use std::sync::{ Arc, Mutex };
+use std::path::PathBuf;
+use dirs::desktop_dir;
+
+mod db;
 
 fn main() {
     let context = tauri::generate_context!();
@@ -16,9 +22,25 @@ fn main() {
         .add_item(CustomMenuItem::new("quit".to_string(), "退出"));
 
     let system_tray = SystemTray::new().with_menu(tray_menu);
+    // Get the desktop directory
+    let desktop_path: PathBuf = desktop_dir().expect("Failed to get desktop directory");
+    let db_path = desktop_path.join("iCopy.sqlite");
+
+    // Initialize the database connection
+    let conn = Connection::open(db_path).expect("Failed to open database");
+    db::initialize_database(&conn).expect("Failed to initialize database");
+
+    let shared_conn = Arc::new(Mutex::new(conn));
 
     tauri::Builder
         ::default()
+        .manage(shared_conn)
+        .invoke_handler(tauri::generate_handler![
+            db::insert,
+            db::update,
+            db::delete,
+            db::query
+        ])
         .system_tray(system_tray)
         .on_system_tray_event(|app, event| {
             match event {
@@ -43,7 +65,7 @@ fn main() {
             // 监听窗口失焦事件
             let app_env = env::var("VITE_NETWORK_PROCESSOR").unwrap_or_else(|_| "dev".to_string());
             println!("现在是开发环境: {}", app_env);
-            if app_env == "tauri" {
+            if app_env != "dev" {
                 _main_window.on_window_event(move |event| {
                     match event {
                         tauri::WindowEvent::Focused(focused) => {

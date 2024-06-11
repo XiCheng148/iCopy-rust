@@ -10,7 +10,7 @@
   "tauri": {
     "macOSPrivateApi": true,
     "systemTray": {
-      "iconPath": "icons/icon.ico"
+      "iconPath": "icons/icon-64.ico"
     },
     "allowlist": {
       "all": false,
@@ -38,7 +38,7 @@
       },
       "externalBin": [],
       "icon": [
-        "icons/icon.ico"
+        "icons/icon-64.ico"
       ],
       "identifier": "com.tauri.dev.clipboard",
       "longDescription": "",
