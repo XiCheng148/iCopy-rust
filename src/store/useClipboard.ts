@@ -1,114 +1,107 @@
-// import {defineStore} from "pinia";
-// import {onMounted, onUnmounted, ref} from "vue";
-// import {useDexie} from "../utils/db";
-// import {useStorage} from "@vueuse/core";
-// import {UnlistenFn} from "@tauri-apps/api/event";
-// import {
-//   hasFiles,
-//   hasHTML,
-//   hasImage,
-//   hasRTF,
-//   hasText,
-//   listenToMonitorStatusUpdate,
-//   onClipboardUpdate,
-//   onFilesUpdate,
-//   onImageUpdate,
-//   onTextUpdate,
-//   startListening
-// } from "tauri-plugin-clipboard-api";
+import { defineStore } from 'pinia';
+import { invoke } from '@tauri-apps/api/tauri';
+import { ref } from 'vue';
+import { dialog } from '@tauri-apps/api';
 
-// export const useClipboardStore = defineStore('clipboard', () => {
-//   const {add} = useDexie();
+interface ClipboardItem {
+  id: number;
+  content: string;
+  item_type: number;
+  time: string;
+}
 
-//   const monitorRunning = useStorage('monitorRunning', false, localStorage);
-//   let unlistenTextUpdate: UnlistenFn;
-//   let unlistenImageUpdate: UnlistenFn;
-//   let unlistenHtmlUpdate: UnlistenFn;
-//   let unlistenRTF: UnlistenFn;
-//   let unlistenClipboard = ref();
-//   let unlistenFiles: UnlistenFn;
-//   const has = ref({
-//     html: {
-//       content: '',
-//       has: false,
-//     },
-//     img: {
-//       content: '',
-//       has: false,
-//     },
-//     text: {
-//       content: '',
-//       has: false,
-//     },
-//     rtf: {
-//       content: '',
-//       has: false,
-//     },
-//     flies: {
-//       content: '',
-//       has: false,
-//     },
-//   });
+interface InsertRequest {
+  content: string;
+  item_type: number;
+}
 
-//   const hasNew = ref(false);
+interface UpdateRequest {
+  id: number;
+  content: string;
+}
 
-//   listenToMonitorStatusUpdate(running => {
-//     monitorRunning.value = running;
-//   }).then(_ => {
-//   });
+interface DeleteRequest {
+  id: number;
+}
 
-//   onMounted(async () => {
-//     unlistenTextUpdate = await onTextUpdate(async newText => {
-//       if (has.value.text.content === newText) return;
-//       if (!/\S/.test(newText)) return;
-//       if (hasNew.value) return;
-//       hasNew.value = true;
-//       await add(newText);
-//       has.value.text.content = newText;
-//     });
-//     // unlistenHtmlUpdate = await onHTMLUpdate(async newHtml => {
-//     //   if (!hasNew.value) hasNew.value = true;
-//     //   await add(newHtml);
-//     // });
-//     unlistenImageUpdate = await onImageUpdate(async b64Str => {
-//       if (has.value.img.content === b64Str) return;
-//       if (!hasNew.value) hasNew.value = true;
-//       await add(b64Str, 'img');
-//       has.value.img.content = b64Str;
-//     });
-//     unlistenFiles = await onFilesUpdate(async newFiles => {
-//       if (has.value.flies.content === JSON.stringify(newFiles)) return;
-//       if (!hasNew.value) hasNew.value = true;
-//       await add(JSON.stringify(newFiles));
-//       has.value.flies.content = JSON.stringify(newFiles);
-//     });
-//     // unlistenRTF = await onRTFUpdate(async newRTF => {
-//     //   if (has.value.rtf.content === newRTF) return;
-//     //   if (!hasNew.value) hasNew.value = true;
-//     //   await add(newRTF);
-//     //   has.value.rtf.content = newRTF;
-//     // });
-//     unlistenClipboard.value = await startListening();
+interface QueryRequest {
+  id?: number;
+}
+interface SearchRequest {
+  keyword: string;
+}
 
-//     await onClipboardUpdate(async () => {
-//       has.value.html.has = await hasHTML();
-//       has.value.img.has = await hasImage();
-//       has.value.text.has = await hasText();
-//       has.value.rtf.has = await hasRTF();
-//       has.value.flies.has = await hasFiles();
-//     });
-//   });
+export const useClipboardStore = defineStore('clipboard', () => {
+  const list = ref<ClipboardItem[]>([]);
+  const loading = ref<boolean>(false);
+  const insert = async (request: InsertRequest) => {
+    await performAction('insert', request);
+  };
+  const update = async (request: UpdateRequest) => {
+    await performAction('update', request);
+  };
+  const deleteById = async (request: DeleteRequest) => {
+    await performAction('delete', request);
+  };
+  const search = async (request: SearchRequest) => {
+    loading.value = true;
+    console.log(
+      '%c%o',
+      'background: yellow; color: #000;font-size:20px',
+      request
+    );
 
-//   onUnmounted(() => {
-//     if (unlistenTextUpdate) unlistenTextUpdate();
-//     if (unlistenImageUpdate) unlistenImageUpdate();
-//     if (unlistenHtmlUpdate) unlistenHtmlUpdate();
-//     if (unlistenFiles) unlistenFiles();
-//     if (unlistenClipboard.value) unlistenClipboard.value();
-//   });
-//   return {
-//     monitorRunning,
-//     hasNew,
-//     unlistenClipboard,
-//   };
-// })
+    try {
+      const response = await invoke<string>('search', { request });
+      console.log('response: ', JSON.parse(response));
+      list.value = JSON.parse(response);
+    } catch (error) {
+      console.error(`Failed to search:`, error);
+    } finally {
+      loading.value = false;
+    }
+  };
+  const query = async (request: QueryRequest = {}) => {
+    console.log('------query------');
+    loading.value = true;
+
+    try {
+      const response = await invoke<string>('query', { request });
+      list.value = JSON.parse(response);
+    } catch (error) {
+      dialog.message('Failed to query:', error as any);
+    } finally {
+      loading.value = false;
+    }
+  };
+  const performAction = async (
+    action: string,
+    request: SearchRequest | InsertRequest | UpdateRequest | DeleteRequest
+  ) => {
+    loading.value = true;
+    console.log(
+      '%c%s',
+      'background: yellow; color: #000;font-size:20px',
+      `${action}: `,
+      request
+    );
+
+    try {
+      await invoke<string>(action, { request });
+      await query(); // Re-query the database to ensure consistency
+    } catch (error) {
+      console.error(`Failed to ${action}:`, error);
+    } finally {
+      loading.value = false;
+    }
+  };
+  return {
+    list,
+    loading,
+    insert,
+    update,
+    deleteById,
+    query,
+    search,
+  };
+});

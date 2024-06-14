@@ -39,7 +39,8 @@ fn main() {
             db::insert,
             db::update,
             db::delete,
-            db::query
+            db::query,
+            db::search,
         ])
         .system_tray(system_tray)
         .on_system_tray_event(|app, event| {

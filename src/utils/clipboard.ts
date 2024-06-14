@@ -1,4 +1,4 @@
-import {onMounted, onUnmounted, ref} from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import {
   hasFiles,
   hasHTML,
@@ -12,13 +12,21 @@ import {
   onTextUpdate,
   startListening,
 } from 'tauri-plugin-clipboard-api';
-import {UnlistenFn} from '@tauri-apps/api/event';
-import {useDexie} from './db';
-import {useStorage} from '@vueuse/core';
+import { UnlistenFn } from '@tauri-apps/api/event';
+import { useStorage } from '@vueuse/core';
+import { useClipboardStore } from '../store/useClipboard';
+
+// 类型声明
+enum ItemType {
+  'TEXT' = 0,
+  'IMAGE' = 1,
+  'FILES' = 3,
+  'HTML' = 4,
+  'RTF' = 5,
+}
 
 export function useClipboard() {
-  const {add} = useDexie();
-
+  const { insert } = useClipboardStore();
   const monitorRunning = useStorage('monitorRunning', false, localStorage);
   let unlistenTextUpdate: UnlistenFn;
   let unlistenImageUpdate: UnlistenFn;
@@ -53,8 +61,7 @@ export function useClipboard() {
 
   listenToMonitorStatusUpdate(running => {
     monitorRunning.value = running;
-  }).then(_ => {
-  });
+  }).then(_ => {});
 
   onMounted(async () => {
     unlistenTextUpdate = await onTextUpdate(async newText => {
@@ -62,7 +69,7 @@ export function useClipboard() {
       if (!/\S/.test(newText)) return;
       if (hasNew.value) return;
       hasNew.value = true;
-      await add(newText);
+      await insert({ content: newText, item_type: ItemType.TEXT });
       has.value.text.content = newText;
     });
     // unlistenHtmlUpdate = await onHTMLUpdate(async newHtml => {
@@ -72,13 +79,13 @@ export function useClipboard() {
     unlistenImageUpdate = await onImageUpdate(async b64Str => {
       if (has.value.img.content === b64Str) return;
       if (!hasNew.value) hasNew.value = true;
-      await add(b64Str, 'img');
+      await insert({ content: b64Str, item_type: ItemType.IMAGE });
       has.value.img.content = b64Str;
     });
     unlistenFiles = await onFilesUpdate(async newFiles => {
       if (has.value.flies.content === JSON.stringify(newFiles)) return;
       if (!hasNew.value) hasNew.value = true;
-      await add(JSON.stringify(newFiles));
+      await insert({ content: JSON.stringify(newFiles), item_type: ItemType.FILES });
       has.value.flies.content = JSON.stringify(newFiles);
     });
     // unlistenRTF = await onRTFUpdate(async newRTF => {

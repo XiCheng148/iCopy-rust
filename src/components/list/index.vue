@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, computed, nextTick } from 'vue';
+import { ref, onMounted, watch, computed, nextTick, toRefs } from 'vue';
 import Item from '../item/index.vue';
-import { useDexie } from '../../utils/db.js';
 import { useClipboard } from '../../utils/clipboard.js';
 import { writeText, writeImageBase64 } from 'tauri-plugin-clipboard-api';
 import { appWindow } from '@tauri-apps/api/window';
+import { useClipboardStore } from '../../store/useClipboard';
+import { storeToRefs } from 'pinia';
 
-const { clipboardList, fetchList } = useDexie();
 const { hasNew } = useClipboard();
+const clipboardStore = useClipboardStore();
+const { query: fetchList, deleteById } = clipboardStore;
+const { list: clipboardList, loading } = storeToRefs(clipboardStore);
 
 const scrollContainer = ref();
 
@@ -22,10 +25,11 @@ const copy = async (item: any) => {
     await appWindow.hide();
   } catch (error) {}
 };
-const del = async (item: any) => {
-  await fetchList();
+const del = async (id: number) => {
+  await deleteById({ id });
 };
 
+// 滚动监听
 const handleWheel = (event: any) => {
   if (scrollContainer.value) {
     event.preventDefault(); // 阻止默认的垂直滚动行为
@@ -45,20 +49,15 @@ const handleWheel = (event: any) => {
 
 watch(hasNew, async () => {
   if (hasNew.value) {
-    await fetchList();
     hasNew.value = false;
   }
 });
 
-watch(clipboardList, () => {
-  console.log('clipboardList', clipboardList);
-});
-
 onMounted(async () => {
-  await fetchList();
   if (scrollContainer.value) {
     scrollContainer.value.$el.addEventListener('wheel', handleWheel);
   }
+  await fetchList();
 });
 </script>
 

@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 import List from './components/list/index.vue';
 import { appWindow, PhysicalSize } from '@tauri-apps/api/window';
 import { primaryMonitor } from '@tauri-apps/api/window';
 import { useStorage } from '@vueuse/core';
-import { useDexie } from './utils/db';
+import { useClipboardStore } from './store/useClipboard';
 
+const clipboardStore = useClipboardStore();
+const { search, query } = clipboardStore;
 const setWindowSize = async () => {
   const monitor = await primaryMonitor();
   if (monitor) {
@@ -18,6 +20,12 @@ const tagClick = () => {
   console.log('todo tagClick');
 };
 
+const keyword = ref('');
+
+const searchHandler = () => {
+  search({ keyword: keyword.value });
+};
+
 const hideWindowWithEscape = async (e: any) => {
   if (e.key === 'Escape') {
     // 使用 Tauri API 隐藏窗口
@@ -26,8 +34,6 @@ const hideWindowWithEscape = async (e: any) => {
 };
 
 const monitorRunning = useStorage('monitorRunning', false);
-
-const { exportData, importData } = useDexie();
 
 const toggleTheme = (e: any) => {
   const currentTheme = document.documentElement.getAttribute('data-theme');
@@ -42,6 +48,12 @@ const toggleTheme = (e: any) => {
     document.documentElement.setAttribute('data-theme', newTheme);
   }
 };
+
+watch(keyword, async newVal => {
+  if (!newVal) {
+    await query();
+  }
+});
 
 onMounted(async () => {
   await setWindowSize();
@@ -75,8 +87,8 @@ onMounted(async () => {
       </div>
       <!-- search -->
       <div class="flex gap-x-8">
-        <div class="cursor-pointer hover:text-green" @click="tagClick">
-          搜索
+        <div class="cursor-pointer hover:text-green">
+          <input type="text" placeholder="搜索" v-model="keyword" @keydown.enter="searchHandler"/>
         </div>
         <div class="cursor-pointer hover:text-green" @click="tagClick">
           全部
@@ -94,12 +106,20 @@ onMounted(async () => {
       <div>
         <img
           class="w-24px h-24px rounded-full cursor-pointer"
-          @click="exportData"
+          @click="
+            () => {
+              //exportData
+            }
+          "
           src="./assets/svg/export.svg"
         />
         <img
           class="w-24px h-24px rounded-full cursor-pointer"
-          @click="importData"
+          @click="
+            () => {
+              // importData
+            }
+          "
           src="./assets/svg/import.svg"
         />
       </div>

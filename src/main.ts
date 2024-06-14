@@ -1,15 +1,12 @@
-import {createApp} from 'vue';
-import 'virtual:uno.css'
-import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
+import { createPinia } from 'pinia';
+import { createApp } from 'vue';
+import 'virtual:uno.css';
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 import './assets/styles/app.scss';
+import VueVirtualScroller from 'vue-virtual-scroller';
 import App from './app.vue';
-import VueVirtualScroller from 'vue-virtual-scroller'
-import {createPinia} from "pinia";
 
 const app = createApp(App);
-const pinia = createPinia()
-app.use(VueVirtualScroller)
-app.use(pinia)
+const pinia = createPinia();
 
-
-app.mount('#app');
+app.use(VueVirtualScroller).use(pinia).mount('#app');

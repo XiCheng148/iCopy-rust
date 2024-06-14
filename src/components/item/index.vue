@@ -59,9 +59,7 @@ const getTimeAgo = computed(() => (time: any) => {
 const copy = (item: any) => {
   emit('copy', item);
 };
-const {deleteById} = useDexie();
 const del = (id: any) => {
-  deleteById(id);
   emit('del', id);
 };
 </script>
