@@ -1,3 +1,5 @@
+extern crate chrono;
+use chrono::{ Local, NaiveDateTime, DateTime, TimeZone };
 use rusqlite::{ params, Connection, Result };
 use serde::{ Deserialize, Serialize };
 use std::sync::{ Arc, Mutex };
@@ -29,7 +31,7 @@ pub struct Item {
     pub id: i32,
     pub content: String,
     pub item_type: i32,
-    pub time: String,
+    pub time: String, // Keep this as String for JSON serialization
 }
 
 #[derive(Deserialize)]
@@ -60,7 +62,7 @@ pub fn initialize_database(conn: &Connection) -> Result<()> {
 pub fn search(
     conn: tauri::State<Arc<Mutex<Connection>>>,
     request: SearchRequest
-) -> Result<String, String> {
+) -> Result<Vec<Item>, String> {
     let conn = conn.lock().map_err(|e| e.to_string())?;
     let mut stmt = conn
         .prepare(
@@ -72,16 +74,22 @@ pub fn search(
     let mut results = Vec::new();
 
     while let Some(row) = rows.next().map_err(|e| e.to_string())? {
+        let utc_time: String = row.get(3).map_err(|e| e.to_string())?;
+        let naive_utc_time = NaiveDateTime::parse_from_str(&utc_time, "%Y-%m-%d %H:%M:%S").map_err(
+            |e| e.to_string()
+        )?;
+        let local_time: DateTime<Local> = Local.from_utc_datetime(&naive_utc_time);
+
         let item = Item {
             id: row.get(0).map_err(|e| e.to_string())?,
             content: row.get(1).map_err(|e| e.to_string())?,
             item_type: row.get(2).map_err(|e| e.to_string())?,
-            time: row.get(3).map_err(|e| e.to_string())?,
+            time: local_time.format("%Y-%m-%d %H:%M:%S").to_string(),
         };
         results.push(item);
     }
 
-    Ok(serde_json::to_string(&results).map_err(|e| e.to_string())?)
+    Ok(results)
 }
 
 #[tauri::command]
@@ -151,7 +159,7 @@ pub fn delete(
 pub fn query(
     conn: tauri::State<Arc<Mutex<Connection>>>,
     request: SelectRequest
-) -> Result<String, String> {
+) -> Result<Vec<Item>, String> {
     let conn = conn.lock().map_err(|e| e.to_string())?;
     let mut stmt = if let Some(id) = request.id {
         conn.prepare("SELECT * FROM contents WHERE id = ?").map_err(|e| e.to_string())?
@@ -168,15 +176,21 @@ pub fn query(
     let mut results = Vec::new();
 
     while let Some(row) = rows.next().map_err(|e| e.to_string())? {
+        let utc_time: String = row.get(3).map_err(|e| e.to_string())?;
+        let naive_utc_time = NaiveDateTime::parse_from_str(&utc_time, "%Y-%m-%d %H:%M:%S").map_err(
+            |e| e.to_string()
+        )?;
+        let local_time: DateTime<Local> = Local.from_utc_datetime(&naive_utc_time);
+
         let item = Item {
             id: row.get(0).map_err(|e| e.to_string())?,
             content: row.get(1).map_err(|e| e.to_string())?,
             item_type: row.get(2).map_err(|e| e.to_string())?,
-            time: row.get(3).map_err(|e| e.to_string())?,
+            time: local_time.format("%Y-%m-%d %H:%M:%S").to_string(),
         };
         results.push(item);
     }
     results.reverse();
 
-    Ok(serde_json::to_string(&results).map_err(|e| e.to_string())?)
+    Ok(results)
 }

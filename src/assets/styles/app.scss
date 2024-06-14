@@ -1,10 +1,14 @@
 :root {
   // ligin
-  --bg: #ECE3CA;
-  --line: #E4D8B4;
-  --border: #DBCA9A;
+  --bg: #ece3ca;
+  --line: #e4d8b4;
+  --border: #dbca9a;
   --text: #282425;
   --hover: #5a534e;
+  --frames-from: 0%;
+  --frames-to: 136%;
+  // --duration: 1000;
+  // --dealy: 0;
 }
 /* 暗黑主题 */
 [data-theme='dark'] {
@@ -13,6 +17,10 @@
   --text: #d6d6d6;
   --hover: #141414;
   --border: #262626;
+  --frames-from: 0%;
+  --frames-to: 136%;
+  // --duration: 1000;
+  // --dealy: 0;
 }
 
 ::view-transition-old(*) {
@@ -25,10 +33,10 @@
 }
 @keyframes clip {
   from {
-    clip-path: circle(0% at var(--x) var(--y));
+    clip-path: circle(var(--frames-from) at var(--x) var(--y));
   }
-  to{
-    clip-path: circle(150% at var(--x) var(--y));
+  to {
+    clip-path: circle(var(--frames-to) at var(--x) var(--y));
   }
 }
 
@@ -37,6 +45,7 @@ body {
   color-scheme: light dark;
   color: var(--text);
   background-color: transparent;
+  // @apply 'transition-all duration-[var(--duration)] delay-[var(--dealy)]';
 }
 
 div::-webkit-scrollbar {

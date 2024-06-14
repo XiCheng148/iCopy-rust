@@ -1,32 +1,58 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, computed, nextTick, toRefs } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import Item from '../item/index.vue';
-import { useClipboard } from '../../utils/clipboard.js';
+import { ItemType, useClipboard } from '../../utils/clipboard.js';
 import { writeText, writeImageBase64 } from 'tauri-plugin-clipboard-api';
 import { appWindow } from '@tauri-apps/api/window';
 import { useClipboardStore } from '../../store/useClipboard';
 import { storeToRefs } from 'pinia';
+import {
+  isPermissionGranted,
+  requestPermission,
+  sendNotification,
+} from '@tauri-apps/api/notification';
+import { dialog } from '@tauri-apps/api';
 
 const { hasNew } = useClipboard();
 const clipboardStore = useClipboardStore();
 const { query: fetchList, deleteById } = clipboardStore;
 const { list: clipboardList, loading } = storeToRefs(clipboardStore);
 
+const permissionGranted = ref(false);
 const scrollContainer = ref();
 
 const index = ref(0);
 const copy = async (item: any) => {
   try {
-    if (item.type !== 'img') {
+    if (item.item_type !== ItemType.IMAGE) {
       await writeText(item.content);
-    } else if (item.type === 'img') {
+    } else if (item.item_type === ItemType.IMAGE) {
       await writeImageBase64(item.content);
     }
+    if (permissionGranted.value) {
+      sendNotification({
+        icon: 'icons/icon-64.ico',
+        title: `🎉🎉🎉 复制成功!`,
+        body: item.item_type === ItemType.IMAGE ? '' : `${item.content}`,
+      });
+    }
     await appWindow.hide();
-  } catch (error) {}
+  } catch (error) {
+    dialog.message('复制失败', JSON.stringify(error as any));
+  }
 };
 const del = async (id: number) => {
-  await deleteById({ id });
+  try {
+    await deleteById({ id });
+    if (permissionGranted) {
+      sendNotification({
+        icon: 'icons/icon-64.ico',
+        title: '❎ 删除成功!',
+      });
+    }
+  } catch (error) {
+    dialog.message('删除失败', JSON.stringify(error as any));
+  }
 };
 
 // 滚动监听
@@ -56,6 +82,11 @@ watch(hasNew, async () => {
 onMounted(async () => {
   if (scrollContainer.value) {
     scrollContainer.value.$el.addEventListener('wheel', handleWheel);
+  }
+  permissionGranted.value = await isPermissionGranted();
+  if (!permissionGranted.value) {
+    const permission = await requestPermission();
+    permissionGranted.value = permission === 'granted';
   }
   await fetchList();
 });

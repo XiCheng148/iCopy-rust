@@ -52,9 +52,9 @@ export const useClipboardStore = defineStore('clipboard', () => {
     );
 
     try {
-      const response = await invoke<string>('search', { request });
-      console.log('response: ', JSON.parse(response));
-      list.value = JSON.parse(response);
+      const response = await invoke<ClipboardItem[]>('search', { request });
+      console.log('response: ', response);
+      list.value = response;
     } catch (error) {
       console.error(`Failed to search:`, error);
     } finally {
@@ -66,8 +66,8 @@ export const useClipboardStore = defineStore('clipboard', () => {
     loading.value = true;
 
     try {
-      const response = await invoke<string>('query', { request });
-      list.value = JSON.parse(response);
+      const response = await invoke<ClipboardItem[]>('query', { request });
+      list.value = response;
     } catch (error) {
       dialog.message('Failed to query:', error as any);
     } finally {

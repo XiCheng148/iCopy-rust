@@ -14,6 +14,9 @@
     },
     "allowlist": {
       "all": false,
+      "notification": {
+        "all": true
+      },
       "fs": {
         "readFile": true,
         "writeFile": true

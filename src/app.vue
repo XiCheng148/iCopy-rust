@@ -35,9 +35,11 @@ const hideWindowWithEscape = async (e: any) => {
 
 const monitorRunning = useStorage('monitorRunning', false);
 
+const isLight = ref(true);
 const toggleTheme = (e: any) => {
+  isLight.value = !isLight.value;
   const currentTheme = document.documentElement.getAttribute('data-theme');
-  const newTheme = currentTheme === 'dark' ? '' : 'dark';
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
   document.documentElement.style.setProperty('--x', e.clientX + 'px');
   document.documentElement.style.setProperty('--y', e.clientY + 'px');
   if ((document as any).startViewTransition) {
@@ -64,7 +66,12 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="transition-all h-100vh flex flex-col rounded-xl bg-[var(--bg)]">
+  <div
+    class="h-100vh flex flex-col rounded-xl bg-[var(--bg)]"
+    :class="[
+      // 'transition-all duration-[var(--duration)] delay-[var(--dealy)]'
+    ]"
+  >
     <!-- 搜索🔍 -->
     <!-- <v-text-field clearable>
       <template v-slot:prepend>
@@ -82,13 +89,18 @@ onMounted(async () => {
         <div
           class="w-14px h-14px rounded-full cursor-pointer"
           :class="monitorRunning ? 'bg-green' : 'bg-[#f00]'"
-          @click="toggleTheme"
         ></div>
       </div>
       <!-- search -->
       <div class="flex gap-x-8">
         <div class="cursor-pointer hover:text-green">
-          <input type="text" placeholder="搜索" v-model="keyword" @keydown.enter="searchHandler"/>
+          🔍
+          <input
+            type="text"
+            placeholder="搜索"
+            v-model="keyword"
+            @keydown.enter="searchHandler"
+          />
         </div>
         <div class="cursor-pointer hover:text-green" @click="tagClick">
           全部
@@ -103,7 +115,7 @@ onMounted(async () => {
           号码
         </div>
       </div>
-      <div>
+      <div class="flex gap-x-8px">
         <img
           class="w-24px h-24px rounded-full cursor-pointer"
           @click="
@@ -122,6 +134,9 @@ onMounted(async () => {
           "
           src="./assets/svg/import.svg"
         />
+        <div class="" @click="toggleTheme">
+          {{ isLight ? '🌞' : '🌜' }}
+        </div>
       </div>
     </div>
     <List class="flex-grow" />
