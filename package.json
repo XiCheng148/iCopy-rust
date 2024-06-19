@@ -9,7 +9,8 @@
     "serve:native": "cross-env VITE_NETWORK_PROCESSOR=dev tauri dev",
     "build:web": "vite build",
     "build": "vite build && tauri build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "icons": "tauri icon src-tauri/icons/icon-64.ico"
   },
   "dependencies": {
     "@mdi/font": "7.2.96",

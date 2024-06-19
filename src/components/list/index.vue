@@ -31,7 +31,7 @@ const copy = async (item: any) => {
     }
     if (permissionGranted.value) {
       sendNotification({
-        icon: 'icons/icon-64.ico',
+        icon: 'icons/icon.ico',
         title: `🎉🎉🎉 复制成功!`,
         body: item.item_type === ItemType.IMAGE ? '' : `${item.content}`,
       });
@@ -46,7 +46,7 @@ const del = async (id: number) => {
     await deleteById({ id });
     if (permissionGranted) {
       sendNotification({
-        icon: 'icons/icon-64.ico',
+        icon: 'icons/icon.ico',
         title: '❎ 删除成功!',
       });
     }
