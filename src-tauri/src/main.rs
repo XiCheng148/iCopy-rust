@@ -8,12 +8,6 @@ use tauri::{
     SystemTrayMenu,
     GlobalShortcutManager,
 };
-use rusqlite::Connection;
-use std::sync::{ Arc, Mutex };
-use std::path::PathBuf;
-use dirs::desktop_dir;
-
-mod db;
 
 fn main() {
     let context = tauri::generate_context!();
@@ -22,26 +16,9 @@ fn main() {
         .add_item(CustomMenuItem::new("quit".to_string(), "退出"));
 
     let system_tray = SystemTray::new().with_menu(tray_menu);
-    // Get the desktop directory
-    let desktop_path: PathBuf = desktop_dir().expect("Failed to get desktop directory");
-    let db_path = desktop_path.join("iCopy.sqlite");
-
-    // Initialize the database connection
-    let conn = Connection::open(db_path).expect("Failed to open database");
-    db::initialize_database(&conn).expect("Failed to initialize database");
-
-    let shared_conn = Arc::new(Mutex::new(conn));
 
     tauri::Builder
         ::default()
-        .manage(shared_conn)
-        .invoke_handler(tauri::generate_handler![
-            db::insert,
-            db::update,
-            db::delete,
-            db::query,
-            db::search,
-        ])
         .system_tray(system_tray)
         .on_system_tray_event(|app, event| {
             match event {
@@ -112,6 +89,7 @@ fn main() {
             Ok(())
         })
         .plugin(tauri_plugin_clipboard::init())
+        .plugin(tauri_plugin_sql::Builder::default().build())
         .run(context)
         .expect("error while running tauri application");
 }

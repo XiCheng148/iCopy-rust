@@ -1,19 +1,16 @@
 {
   "compilerOptions": {
-    "target": "es5",                // 编译为 ES5
-    "lib": ["es2015", "dom"], // 添加 ES2015 库
-    "module": "commonjs",           // 使用 CommonJS 模块系统
-    "strict": true,                 // 启用所有严格类型检查选项
-    // "outDir": "./dist",             // 指定输出目录
-    "esModuleInterop": true,        // 启用 ES6 模块的默认导入互操作性
-    "skipLibCheck": true,           // 跳过所有声明文件（*.d.ts）的类型检查
-    "forceConsistentCasingInFileNames": true // 强制文件名大小写一致性
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
-  "include": [
-    "src/**/*"                       // 包含 src 目录下的所有文件
-  ],
-  "exclude": [
-    "node_modules",                  // 排除 node_modules 目录
-    "**/*.spec.ts"                   // 排除测试文件
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

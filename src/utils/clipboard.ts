@@ -14,32 +14,18 @@ import {
 } from 'tauri-plugin-clipboard-api';
 import { UnlistenFn } from '@tauri-apps/api/event';
 import { useStorage } from '@vueuse/core';
-import { useClipboardStore } from '../store/useClipboard';
+import { ItemType } from '../types';
 
-// 类型声明
-export enum ItemType {
-  'TEXT' = 0,
-  'IMAGE' = 1,
-  'FILES' = 3,
-  'HTML' = 4,
-  'RTF' = 5,
-}
-
-export const ItemTypeCn: Record<ItemType, string> = {
-  [ItemType.TEXT]: '文本',
-  [ItemType.IMAGE]: '图片',
-  [ItemType.FILES]: '文件',
-  [ItemType.HTML]: 'HTML',
-  [ItemType.RTF]: 'RTF',
-};
-
-export function useClipboard() {
-  const { insert } = useClipboardStore();
+export function useClipboard(
+  addContent: Function,
+  queryContent: Function,
+  findLastOne: Function
+) {
   const monitorRunning = useStorage('monitorRunning', false, localStorage);
   let unlistenTextUpdate: UnlistenFn;
   let unlistenImageUpdate: UnlistenFn;
   let unlistenHtmlUpdate: UnlistenFn;
-  let unlistenRTF: UnlistenFn;
+  // let unlistenRTF: UnlistenFn;
   let unlistenClipboard = ref();
   let unlistenFiles: UnlistenFn;
   const has = ref({
@@ -65,36 +51,35 @@ export function useClipboard() {
     },
   });
 
-  const hasNew = ref(false);
-
   listenToMonitorStatusUpdate(running => {
     monitorRunning.value = running;
   }).then(_ => {});
 
   onMounted(async () => {
     unlistenTextUpdate = await onTextUpdate(async newText => {
-      if (has.value.text.content === newText) return;
       if (!/\S/.test(newText)) return;
-      if (hasNew.value) return;
-      hasNew.value = true;
-      await insert({ content: newText, item_type: ItemType.TEXT });
-      has.value.text.content = newText;
+      const res = await findLastOne(ItemType.TEXT);
+      if(res.content === newText) return;
+      await addContent({ content: newText, type: ItemType.TEXT });
+      await queryContent();
     });
     // unlistenHtmlUpdate = await onHTMLUpdate(async newHtml => {
-    //   if (!hasNew.value) hasNew.value = true;
-    //   await add(newHtml);
+    //
     // });
     unlistenImageUpdate = await onImageUpdate(async b64Str => {
-      if (has.value.img.content === b64Str) return;
-      if (!hasNew.value) hasNew.value = true;
-      await insert({ content: b64Str, item_type: ItemType.IMAGE });
-      has.value.img.content = b64Str;
+      const res = await findLastOne(ItemType.IMAGE);
+      if(res.content === b64Str) return;
+      await addContent({ content: b64Str, type: ItemType.IMAGE });
+      await queryContent();
     });
     unlistenFiles = await onFilesUpdate(async newFiles => {
-      if (has.value.flies.content === JSON.stringify(newFiles)) return;
-      if (!hasNew.value) hasNew.value = true;
-      await insert({ content: JSON.stringify(newFiles), item_type: ItemType.FILES });
-      has.value.flies.content = JSON.stringify(newFiles);
+      const res = await findLastOne(ItemType.TEXT);
+      if(res.content === newFiles) return;
+      await addContent({
+        content: JSON.stringify(newFiles),
+        type: ItemType.FILES,
+      });
+      await queryContent();
     });
     // unlistenRTF = await onRTFUpdate(async newRTF => {
     //   if (has.value.rtf.content === newRTF) return;
@@ -122,7 +107,6 @@ export function useClipboard() {
   });
   return {
     monitorRunning,
-    hasNew,
     unlistenClipboard,
   };
 }

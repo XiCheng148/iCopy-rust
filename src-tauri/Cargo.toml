@@ -7,7 +7,7 @@ license = ""
 repository = ""
 default-run = "app"
 edition = "2021"
-rust-version = "1.60"
+rust-version = "1.65"
 
 [build-dependencies]
 tauri-build = { version = "1.5.0", features = [] }
@@ -17,9 +17,10 @@ serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.5.2", features = [ "notification-all", "fs-read-file", "fs-write-file", "macos-private-api", "window-hide", "window-set-size", "global-shortcut-all", "system-tray", "dialog-all"] }
 tauri-plugin-clipboard = "0.6.10"
-chrono = "0.4"
-rusqlite = { version = "0.26.0", features = ["bundled"] }
-dirs = "4.0"
+[dependencies.tauri-plugin-sql]
+git = "https://github.com/tauri-apps/plugins-workspace"
+branch = "v1"
+features = ["sqlite"]
 
 [features]
 custom-protocol = [ "tauri/custom-protocol" ]

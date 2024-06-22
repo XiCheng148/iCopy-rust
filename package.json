@@ -17,9 +17,9 @@
     "@tauri-apps/api": "1.4.0",
     "@vueuse/components": "^10.10.0",
     "dexie": "^4.0.4",
-    "pinia": "^2.1.7",
     "tauri-plugin-clipboard-api": "^0.6.10",
-    "vue": "3.3.4",
+    "tauri-plugin-sql-api": "github:tauri-apps/tauri-plugin-sql#v1",
+    "vue": "3.4",
     "vue-virtual-scroller": "2.0.0-beta.8"
   },
   "devDependencies": {
@@ -28,7 +28,7 @@
     "@vueuse/core": "^10.10.0",
     "cross-env": "7.0.3",
     "sass": "1.63.6",
-    "typescript": "^5.4.5",
+    "typescript": "^5.5.2",
     "unocss": "^0.59.4",
     "vite": "4.4.2"
   },

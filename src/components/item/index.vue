@@ -1,55 +1,50 @@
 <template>
   <div
     :class="[
-      item.item_type === ItemType.IMAGE ? 'justify-center items-center' : '',
+      item.type === ItemType.IMAGE ? 'justify-center items-center' : '',
       'w-197px text-4 leading-6',
       'flex flex-col justify-between',
       'ring-1 ring-inset ring-[var(--border)] rounded-lg',
       ' select-none hover:-translate-y-2',
       'item-bg overflow-hidden relative',
-      // 'transition-all duration-[var(--duration)] delay-[var(--dealy)]',
+      'transition-all',
     ]"
   >
     <div
       class="absolute top-2px right-2px cursor-pointer w-3 h-3 rounded-full bg-white/50 dark:bg-white/10 hover:bg-red"
-      @dblclick="del(item.id)"
+      @click="delHandler(item.id)"
     ></div>
     <div
       class="flex-grow"
-      :class="item.item_type !== ItemType.IMAGE ? 'm-2' : 'hidden'"
-      @dblclick="copy(item)"
+      :class="item.type !== ItemType.IMAGE ? 'm-2' : 'hidden'"
+      @dblclick="copyHandler(item)"
     >
       {{ item.content }}
     </div>
     <div
-      v-if="item.item_type === ItemType.IMAGE"
+      v-if="item.type === ItemType.IMAGE"
       class="w-full h-full bg-contain bg-no-repeat bg-center"
       :style="{
         'background-image': `url(data:image/jpg;base64,${item.content})`,
       }"
-      @dblclick="copy(item)"
+      @dblclick="copyHandler(item)"
     ></div>
     <div
       class="absolute w-full h-auto bottom-0 left-0 bg-[var(--border)] flex justify-between"
     >
-      <div class="ml-10px">{{ ItemTypeCn[item.item_type] }}</div>
+      <div class="ml-10px">{{ ItemTypeCn[item.type] }}</div>
       <div class="mr-10px">{{ getTimeAgo(item.time) }}</div>
     </div>
   </div>
 </template>
-<script setup lang="ts">
-import { computed, onMounted, PropType, ref } from 'vue';
-import { formatTimeAgo } from '@vueuse/core';
-import { ItemType, ItemTypeCn } from '../../utils/clipboard';
 
+<script setup lang="ts">
+import { computed, PropType } from 'vue';
+import { formatTimeAgo } from '@vueuse/core';
+import { Item, ItemType, ItemTypeCn } from '../../types';
 defineProps({
   item: {
-    type: Object as PropType<{
-      item_type: ItemType;
-      content: string;
-      time: string;
-      id: number;
-    }>,
+    type: Object as PropType<Item>,
     default: () => ({}),
   },
 });
@@ -59,10 +54,10 @@ const getTimeAgo = computed(() => (time: string) => {
   return formatTimeAgo(new Date(time), {});
 });
 
-const copy = async (item: any) => {
+const copyHandler = async (item: any) => {
   emit('copy', item);
 };
-const del = (id: any) => {
+const delHandler = (id: any) => {
   emit('del', id);
 };
 </script>
