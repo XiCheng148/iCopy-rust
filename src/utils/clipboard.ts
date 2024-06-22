@@ -59,7 +59,7 @@ export function useClipboard(
     unlistenTextUpdate = await onTextUpdate(async newText => {
       if (!/\S/.test(newText)) return;
       const res = await findLastOne(ItemType.TEXT);
-      if(res.content === newText) return;
+      if(!!res && res.content === newText) return;
       await addContent({ content: newText, type: ItemType.TEXT });
       await queryContent();
     });
@@ -68,13 +68,13 @@ export function useClipboard(
     // });
     unlistenImageUpdate = await onImageUpdate(async b64Str => {
       const res = await findLastOne(ItemType.IMAGE);
-      if(res.content === b64Str) return;
+      if(!!res && res.content === b64Str) return;
       await addContent({ content: b64Str, type: ItemType.IMAGE });
       await queryContent();
     });
     unlistenFiles = await onFilesUpdate(async newFiles => {
       const res = await findLastOne(ItemType.TEXT);
-      if(res.content === newFiles) return;
+      if(!!res && res.content === newFiles) return;
       await addContent({
         content: JSON.stringify(newFiles),
         type: ItemType.FILES,
